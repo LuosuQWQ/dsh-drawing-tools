@@ -24,7 +24,7 @@ DeepSeek Harness（DSH）本身没有出图能力。这个 bundle 提供 12 个 
 
 ## 快速开始 / Quick start
 
-**这是什么。** 一个把本机 ComfyUI 变成绘画 agent 的 DeepSeek Harness 插件包。装一次同时得到 12 个 `drawing_` 工具、一个打开 ComfyUI 画布的侧边栏入口，以及 **极简绘画** agent 预设。它只通过 HTTP 访问你自己的 ComfyUI，不含任何模型、不上传任何数据。
+**这是什么。** 一个把本机 ComfyUI 变成绘画 agent 的 DeepSeek Harness 插件包。装一次同时得到 12 个 `drawing_` 工具、一个打开 ComfyUI 画布的侧边栏入口（桌面版进右栏，网页版新开标签页），以及 **极简绘画** agent 预设。它只通过 HTTP 访问你自己的 ComfyUI，不含任何模型、不上传任何数据。
 
 **What it is.** A DSH bundle that turns a local ComfyUI into a drawing agent; one install gives twelve `drawing_` tools, a sidebar canvas entry and the Minimal drawing preset.
 
@@ -65,6 +65,10 @@ DeepSeek Harness（DSH）本身没有出图能力。这个 bundle 提供 12 个 
 ![桌面客户端右栏里的画布](docs/preview/canvas.jpg)
 
 **3** 画布就是 DSH 右栏里的真实 ComfyUI 页面。工作流保存为 `dsh-drawing/<日期>_<族>`，每个节点都是 agent 提交的那一次，所以同一张图可以重新打开、重新跑。
+
+![agent 生成的 512x512 示例图](docs/preview/example.jpg)
+
+**4** agent 用 `classic` 族生成的结果：512×512、8 步、CFG 4，配方记录在 PNG 里。
 
 ## 功能
 
