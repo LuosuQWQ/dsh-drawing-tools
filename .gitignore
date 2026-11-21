@@ -1,0 +1,13 @@
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+test/out/
+*.bak-*
+# secrets that must never be committed
+.civitai_token
+civitai_token
+*.token
+.env
+.env.*
+*.part

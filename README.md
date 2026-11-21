@@ -1,0 +1,296 @@
+English | [简体中文](README.zh-CN.md)
+
+# dsh-drawing-tools
+
+> Local AI image generation for DeepSeek Harness through a ComfyUI server.
+
+DeepSeek Harness (DSH) has no built-in image generation. This bundle adds twelve `drawing_*` tools that drive a local ComfyUI instance over its HTTP API, and a sidebar entry that opens the ComfyUI canvas in DSH's right sidebar. The tools can report server status, list the models that are actually installed, read a per-family prompt guide, generate batch or img2img images, inspect the queue and history, run saved workflows, and recover the recipe from a ComfyUI PNG. It is displayed as **Drawing tools** in English and **绘画工具** in Chinese.
+
+Installing this single bundle gives you all three pieces: the twelve tools, the sidebar entry, and the **Minimal drawing (极简绘画)** agent preset (preset id `drawing-minimal`), which shows up in the new-session preset list. You do not need a second package for the preset.
+
+## Features
+
+- Twelve `drawing_*` tools: status, model inventory, family guide, generation (batch, img2img, LoRA), queue control, history, saved workflows, and PNG recipe inspection.
+- Multiple LoRAs per image: pass an array and each one becomes a LoraLoader in order (MODEL and CLIP both chained), with per-LoRA model/clip strength.
+- Every run is visible in ComfyUI: it is submitted with client id `dsh-drawing-tools`, a UI-format workflow is written to ComfyUI's Workflows list, and the same workflow is embedded in the PNG so dragging the image back onto the canvas opens the graph.
+- Four model families (classic, anima, krea2, moss) with per-family defaults for steps, CFG, sampler, and scheduler.
+- Bundled usage guides per family: prompt syntax, resolutions, text layout, and known pitfalls, readable through `drawing_guide` — plus a prompt template library with nine tested recipes, negative-prompt packs and a family cheat sheet.
+- A sidebar entry above Settings that starts ComfyUI when needed and opens the canvas as a native browser tab in the right sidebar.
+- Model documentation: `drawing_modeldoc` fetches a model's official card/guide from Hugging Face or Civitai (or imports a local `.md`) into `<models>/.dsh-docs/<kind>/<slug>/` with a provenance index, and `drawing_guide({ model })` returns it before falling back to the family guide. Installs capture the source docs automatically.
+- Every model file reports a `usage` field: the exact call that draws with it (`classic` for checkpoints, its own family for the four known ones, `generic` plus companions for anything else).
+- Missing-model recovery: `drawing_download` searches Civitai, installs the file into the right ComfyUI folder, verifies SHA256 and reports where it landed — with the token held by the host, never by the prompt.
+- The **Minimal drawing (极简绘画)** agent preset: the official `minimal` tool table plus the eight `drawing_*` tools, and nothing else (no shell on Windows beyond `pwsh`, no web, todo, jobs, or file editing).
+- Recipe recovery from chat images: the original PNG's ComfyUI chunks are captured on upload, so `drawing_pnginfo` can answer from the message's `sha256` even after the file is gone.
+- One-command start/stop of a locally installed ComfyUI, with logs and a pid file kept in a folder you choose.
+
+## Starting ComfyUI
+
+The sidebar entry and the `/start` route launch ComfyUI through the bundle row's `launch` config. When that config is empty the host detects a launch automatically: it takes the ComfyUI root from the configured `comfyRoot`, `COMFYUI_HOME`, the reported `models` folder's parent, or a few common portable locations, and looks for `main.py` plus an interpreter (`.ext/python.exe`, `python_embeded`, `venv`, `.venv`). `drawing_status` reports which source it used.
+
+If detection fails (unusual layout), `drawing_setup({ action: 'detect' })` shows the candidate roots and why it failed, and `drawing_setup({ action: 'apply', comfyDir: '<ComfyUI folder>' })` writes `command`/`args`/`cwd` into the host row. Explicit `launch` config always wins over detection.
+
+## GPU and ComfyUI builds
+
+The bundle never assumes CUDA. `drawing_status` detects the local GPU (vendor, name, VRAM) and prints the build and launch arguments that fit it, so a user who does not know ROCm from CUDA still gets a working setup:
+
+| GPU | Build | Typical extra arguments |
+| --- | --- | --- |
+| NVIDIA | CUDA (the official portable build ships this) | `--use-pytorch-cross-attention` |
+| AMD (Windows) | ROCm build (preferred) or DirectML build | `--use-quad-cross-attention`; only the DirectML build takes `--directml` |
+| AMD (Linux) | ROCm | `--use-quad-cross-attention` |
+| Intel | IPEX (experimental) | `--use-ipex` |
+| Apple Silicon | official macOS build | MPS is automatic |
+| none | CPU | `--cpu` (very slow) |
+
+VRAM affects the advice too: below 6 GB it suggests `--lowvram`, below 2 GB `--novram`. `scripts/start-comfyui.ps1` applies the same per-vendor arguments automatically (pass `-ExtraArgs` to override, `-Cpu` for CPU). If ComfyUI is running on the CPU, `drawing_status` says so explicitly.
+
+## Requirements
+
+- DeepSeek Harness 0.2.x (developed against 0.2.2-rc.5).
+- A running ComfyUI server with its HTTP API reachable, by default at `http://127.0.0.1:8188`.
+- ComfyUI model files for the families you intend to use. No models are bundled; `drawing_models` lists what your installation actually exposes.
+- Inline display uses DSH's own rendering: a Markdown image whose destination is a percent-encoded local path is served through the authenticated file route, and `drawing_generate` returns that line for every image. No extra image plugin is required.
+- Windows for the bundled launcher and the stop route, which use `tasklist`, `netstat`, and `taskkill`. The tools themselves only speak HTTP.
+
+## Install
+
+This is a DSH bundle. Install it with the `plugin_manager` tool:
+
+```json
+{ "action": "install_bundle", "target": "<path-to-checkout>" }
+```
+
+Alternatively, add it to the profile's `package.json` (the profile directory is `$env:DSH_PROFILE_DIR` on Windows) and install there:
+
+```json
+{
+  "dependencies": {
+    "dsh-drawing-tools": "file:<path-to-checkout>"
+  }
+}
+```
+
+```bash
+pnpm install
+```
+
+Installation applies to the whole profile. Restart DSH after changing this package's JavaScript: by default the profile's hot reload only reloads configuration, so a running session keeps the modules it loaded at startup.
+
+**One bundle gives you ten tools, the "Minimal drawing" (极简绘画) agent preset and the sidebar entry.** The tools are exported as `dsh-drawing-tools/tools` and appear only in a preset that references that row; the preset shipped here references it for you (preset id `drawing-minimal`). The `dsh-drawing-minimal` package is deprecated and kept only as a compatibility placeholder.
+
+## Configuration
+
+The bundle inserts one Host row, `drawing-console`, which serves the sidebar entry. Override it in the profile patch:
+
+```yaml
+- id: drawing-console
+  name: dsh-drawing-tools
+  config:
+    origin: http://127.0.0.1:8188
+    launch:
+      enabled: true
+      command: <comfyui-root>/.ext/python.exe
+      args: [<comfyui-root>/main.py, --force-fp32]
+      cwd: <comfyui-root>
+      logDir: <path-for-logs>
+      timeoutMs: 90000
+```
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `origin` | string | `http://127.0.0.1:8188` | ComfyUI API base URL used by the sidebar entry and its status probe. |
+| `launch.enabled` | boolean | Auto | Auto-start is on only when a launch command and a working directory are available. Set `false` to disable it explicitly. |
+| `launch.command` | string | `COMFYUI_PYTHON`, else empty | Python executable used to start ComfyUI. |
+| `launch.args` | string[] | `COMFYUI_MAIN`, else empty | Arguments passed to `main.py`. The built-in form adds `--preview-method auto`. |
+| `launch.cwd` | string | `COMFYUI_HOME`, else empty | ComfyUI working directory. |
+| `launch.logDir` | string | `COMFYUI_LOG_DIR`, else a temporary folder | Directory for `comfyui-<timestamp>.log` and `comfyui.pid`. |
+| `launch.timeoutMs` | number | `90000` | How long a start waits for the port to answer before reporting a timeout. |
+
+The bundle ships the launch paths empty, so auto-start stays off until you provide them. Set the three environment variables (`COMFYUI_PYTHON`, `COMFYUI_MAIN`, `COMFYUI_HOME`) for the DSH process, or fill in the row fields; then clicking the sidebar entry starts ComfyUI. Without a launcher, set `launch.enabled: false` and start ComfyUI outside DSH.
+
+The tools read their own options from the row that mounts them (`drawing-tools` in the preset):
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `origin` | string | `COMFY_ORIGIN`, else `http://127.0.0.1:8188` | ComfyUI API base URL. |
+| `comfyRoot` | string | ComfyUI's runtime report | ComfyUI install directory; workflow folders derive from it. The reported value always wins, and this field is only an offline fallback (environment variables no longer feed it). |
+| `modelsRoot` | string | ComfyUI's runtime report | Models tree used for file sizes and target hints. The reported value always wins; this field is only an offline fallback (environment variables no longer feed it). |
+| `outputDir` | string | Built-in path | Where generated PNGs and their `.json` sidecars are written. |
+| `apiWorkflowsDir` | string | `<comfyRoot>/api-workflows` | API-format graphs that `drawing_workflow` lists and runs. |
+| `uiWorkflowsDir` | string | `<comfyRoot>/user/default/workflows` | Where `drawing_pnginfo` saves UI-format graphs for ComfyUI's Workflows panel. |
+| `timeoutSeconds` | number | `600` | Default generation wait, clamped to 30–3600. |
+
+Like the launcher paths, the built-in defaults for `comfyRoot`, `modelsRoot`, and `outputDir` describe one local layout; set them explicitly on a new machine.
+
+## Model sources and install rules
+
+A workflow read from a PNG is audited before anything is downloaded: `drawing_pnginfo` reports the workflow format, the node inventory (each node type and its count) and every model file the graph references, each marked installed, missing, or unknown when ComfyUI is offline.
+
+Missing files are resolved through **`drawing_download`**, whose sources and install rules are fixed:
+
+| Step | What it does |
+| --- | --- |
+| `action: "search"` | Queries Civitai (public JSON API) and Hugging Face (model API) together; `source` limits it to one. Civitai results carry version id, file name, size and SHA256; HF results carry the repo id, downloads and likes. |
+| `action: "files"` | Lists the model files inside one HF repo, with sizes and LFS SHA256. |
+| `action: "find"` | Generic web search through DSH's web service. Links only — nothing is downloaded automatically from an arbitrary site. |
+| `action: "download"` | Installs one file with the rules below. |
+
+Every result reports each host attempt in order, failures included (`huggingface.co ✗ fetch failed → hf-mirror.com ✓`), and a failing host never stops the search.
+
+Two hosts back each source: Civitai tries `civitai.com` and then `civitai.red`; Hugging Face tries `huggingface.co` and then `hf-mirror.com`. A switch happens only on a network failure or 5xx — a 401/403 is a credential problem and is reported instead of retried elsewhere.
+
+Install rules (all enforced in code, not prose):
+
+How a file is used afterwards, by kind: a **checkpoint** draws through `classic` (any SD1.5/SDXL/Pony checkpoint works with `CheckpointLoaderSimple`); a **LoRA** is added to any family through the `lora` parameter; a **VAE** or **text encoder** is a part, not a model on its own; and any other **diffusion model** draws through `family: 'generic'`, which requires you to name the `textEncoder` and `vae` explicitly (`.gguf` automatically uses the GGUF loader). `drawing_models` states this per file in its `usage` field, and `drawing_download` repeats it right after an install.
+
+- **Folder by kind**: `lora`→`loras`, `checkpoint`→`checkpoints`, `diffusion_model`→`diffusion_models`, `vae`→`vae`, `text_encoder`→`text_encoders`, `controlnet`→`controlnet`, `embedding`→`embeddings`, `upscale_model`→`upscale_models`, `clip_vision`→`clip_vision`. The root comes from ComfyUI's own folder report or `config.modelsRoot`; it is never guessed.
+- **File names** keep their readable form (Chinese, spaces, dots) but lose any path component, control characters and characters Windows forbids; a missing model extension is added for the kind. The name is truncated at 120 characters so Windows path limits hold.
+- **No overwrite**: an existing non-empty file of the same name is reported and skipped; a name collision during install becomes `name-2.safetensors`.
+- **Atomic**: the download lands in `.part` and is renamed only after the SHA256 check passes. A failed or cancelled download deletes its partial file.
+- **Metadata**: a Civitai install records the version's `trainedWords`, `triggerAlternatives` (author-written `a | b` alternatives), `triggerHints` (trigger instructions found in the model card), `baseModel`, tags, model name and page URL; a Hugging Face install records the repo's tags, pipeline and `instance_prompt` when present. A multi-word set is meant to be used together; an alternatives entry is a choice of one; a hint is the author's own usage note. `drawing_models` shows them per file, `drawing_pnginfo` attaches them to the files a recipe needs, and the download result repeats the trigger words so they are not lost. Without a trigger word the family guide's prompt rules apply.
+- **Provenance**: each install writes `<models>/.dsh-install/<folder>/<file>.json` with source, URL (token redacted), kind, SHA256, byte count and timestamp, so a model can be traced or removed later.
+- **Credentials**: Civitai uses `CIVITAI_TOKEN`, Hugging Face uses `HF_TOKEN`, both through DSH's credential store with an environment fallback. No tool parameter accepts a token.
+
+## Civitai credentials
+
+`drawing_download` needs a token only for models that require a login (and for searches Civitai refuses anonymously). The token is never configuration and never reaches the model:
+
+- Save it once in **Settings → AI 绘画**: the panel writes it into DSH's credential store under the reference `CIVITAI_TOKEN`. The value travels host-to-host, is never echoed back, and later reads report only "configured / source / masked".
+- Or set the environment variable `CIVITAI_TOKEN` and restart DSH. A stored value outranks the environment, exactly as DSH's credential rules state.
+- An older install that kept a plaintext `~/.dsh/civitai_token` is not read directly; the panel offers **从旧文件导入** once, and leaves the file for you to delete.
+- No tool parameter accepts a token. Do not paste one into a prompt: it would become part of the conversation. Errors are redacted (`token=***`, `Bearer ***`) before they reach the model.
+
+## Output layout and path rules
+
+Generated images follow one canonical layout under `outputDir`:
+
+```
+<outputDir>/<YYYY>/<MM>/<DD>/<HHMMSS>_<family>_<model-slug>_s<seed>_<nn>.png
+<outputDir>/<YYYY>/<MM>/<DD>/<same name>.png.json
+<outputDir>/index.jsonl
+```
+
+- The name is readable and sortable, contains the family, a slug of the model, the seed and the batch index. Existing files are never overwritten: a collision becomes `-2`.
+- Every image gets a sidecar JSON with the full recipe, and one line is appended to `index.jsonl` at the root, so all generations are searchable in one place.
+- `outputDir` is normalized: `~` is expanded, relative paths resolve against the working directory, trailing separators are dropped.
+- ComfyUI keeps its own copy under `<comfy output>/dsh-drawing/<YYYY>/<MM>/<DD>/`, so its output folder stays grouped by date instead of flat.
+- Older images stay where they were written; only new runs use this layout.
+
+Paths that ComfyUI reports at runtime (`/internal/folder_paths`) win over configuration, which is what makes a moved or freshly installed ComfyUI work without editing config. `drawing_status` prints the reconciled paths and warns on a mismatch; `drawing_paths({ action: 'adopt' })` writes the real values back.
+
+## Path conventions
+
+- **Input paths** are resolved against the session directory, which the plugin reads from DSH's own `workingDirectory` service (falling back to the session header). Relative paths therefore mean "relative to where this conversation works".
+- **Resource names are separate parameters.** A local file and a ComfyUI-side name never share a field: `initImage` is a path and `initImageName` is a name already inside ComfyUI's input folder; `drawing_workflow` takes `path` or `name`; `drawing_pnginfo` takes `sha256`, `name` or `path`. Passing two of them is an error rather than a silent precedence rule, and a path that does not exist fails instead of being retried as a name.
+- **Outputs are absolute paths.** Generated PNGs land in `outputDir`; saved recipes land under ComfyUI's own workflow folders. Both are written with exclusive creation, so a concurrent save becomes `name-2.json` instead of overwriting.
+- **Name lookups stay local by default.** `drawing_pnginfo({ name })` searches the output folder, the session directory and ComfyUI's `input`/`temp`; add `searchUserDirs: true` to also search `~/Desktop` and `~/Downloads`.
+- **This is not a sandbox.** The host half reads any local path it is handed (that is how img2img and recipe reading work), so only point it at files you are willing to read.
+
+## Usage
+
+### Tools
+
+| Tool | What it does | Key parameters |
+| --- | --- | --- |
+| `drawing_status` | Reports whether ComfyUI is online, its version, free and total VRAM, queue depth, and the models available per family. | none |
+| `drawing_models` | Lists the model files ComfyUI can actually load, with family, size, and recommended sampler settings. | `kind`: `checkpoints`, `diffusion_models`, `text_encoders`, `vae`, `loras` |
+| `drawing_guide` | Returns the usage guide for one family: prompt format, resolutions, text layout, parameters, pitfalls; `family: "prompt-patterns"` returns the template library instead. Without `family` it returns the index. | `family` |
+| `drawing_generate` | Generates one or more images, or an img2img edit, with optional LoRA. Writes PNGs to the output folder and returns absolute paths. | `prompt`, `family`, `model`, `width`, `height`, `steps`, `cfg`, `sampler`, `scheduler`, `seed`, `batch`, `lora`, `initImage`, `initImageName`, `textEncoder`, `vae`, `clipType`, `denoise`, `timeoutSeconds` |
+| `drawing_queue` | Shows the queue, interrupts the running job, or clears jobs that have not started. | `action`: `status`, `interrupt`, `clear` |
+| `drawing_history` | Returns recent finished generations with the local path of each image. | `limit` (1–50, default 10) |
+| `drawing_workflow` | Lists or runs API-format workflow graphs from the `api-workflows` folder. | `action`: `list`, `run`; `name`, `path`, `timeoutSeconds` |
+| `drawing_setup` | Detects a ComfyUI installation and its Python (`detect`), or writes the result into the bundle row's `launch` config (`apply`) so the sidebar entry and start route can boot ComfyUI. | `action`, `comfyDir`, `python` |
+| `drawing_modeldoc` | Fetches (`fetch`), imports (`import`), shows (`show`) or lists (`list`) official model documentation stored under `<models>/.dsh-docs`; `drawing_guide({ model })` reads it. | `action`, `model`, `kind`, `repo`, `versionId`, `path` |
+| `drawing_paths` | Compares configured paths with the ones ComfyUI reports at runtime, flags mismatches and missing folders, and (with `adopt`) writes the real values back into the plugin config. | `action` |
+| `drawing_download` | Finds and installs a model: `search` (Civitai + Hugging Face), `files` (list a HF repo), `find` (generic web search, links only), `download` (normalized install). The token stays in the host's credential store. | `action`, `source`, `query`, `kind`, `type`, `nsfw`, `limit`, `repo`, `file`, `revision`, `modelVersionId`, `downloadUrl`, `fileName`, `sha256` |
+| `drawing_pnginfo` | Reads the ComfyUI recipe from a PNG: models, LoRAs, seed, steps, CFG, sampler, and both prompts. | `sha256`, `name`, `path`, `save`, `searchUserDirs` |
+
+### Model families
+
+| Family | Model kind | Defaults (steps / CFG / sampler / scheduler) | Good for |
+| --- | --- | --- | --- |
+| `classic` | SD 1.5 checkpoint | 25 / 7 / `euler` / `normal` | Fast drafts and a general fallback. |
+| `anima` | Anima 2B with its own text encoder and VAE | 30 / 4 / `euler` / `simple` | Anime, illustration, characters. Turbo variants drop to 8 steps and CFG 1. |
+| `krea2` | Krea-2 Turbo 12B (GGUF) | 8 / 1 / `euler` / `simple` | Photoreal, cinematic, heavy stylization; the slowest of the four. |
+| `moss` | MOSS-Image 5B | 25 / 2.5 / `er_sde` / `simple` | Accurate Chinese and English text layout, posters, diagrams. |
+
+Passing no `steps`, `cfg`, `sampler`, `scheduler`, or `width` uses the family defaults. `drawing_models` reports the values that apply to a specific file, and `drawing_guide` explains how to prompt for that family; when a guide and a tool result disagree, the tool result wins.
+
+A minimal generation call:
+
+```json
+{
+  "name": "drawing_generate",
+  "arguments": {
+    "prompt": "a red fox sitting in a snowy forest at dusk, soft rim light, detailed fur, cinematic",
+    "family": "anima",
+    "width": 768,
+    "height": 768,
+    "seed": 11
+  }
+}
+```
+
+Each image lands in `outputDir` under a date folder, with a sibling `.json` holding the parameters and the ComfyUI `promptId`.
+
+### Sidebar entry
+
+The entry appears at the bottom of the left sidebar, directly above Settings, and is labelled **AI drawing** (English) or **AI 绘画** (Chinese). Its status dot is green when ComfyUI is running, grey when it is not, and amber while a start is in progress; the status is polled every 12 seconds and stops while the page is hidden. Clicking the entry probes the server, starts it when needed, and opens the canvas in a native browser tab in the right sidebar. A second row, **Stop ComfyUI**, appears only while the server is online and stops it to free VRAM.
+
+## How it works
+
+The tools are plain Node code that talks to ComfyUI over HTTP: `/object_info` for the model inventory, `/system_stats` and `/queue` for status, `/prompt` to submit a graph, `/history/<id>` to poll, `/view` to download results, and `/upload/image` for img2img inputs. A workflow graph is built per family and submitted as ComfyUI's API-format `prompt`; the results are written to disk, never embedded in the model's context.
+
+The Host half serves config, status, start, stop, and log routes for the sidebar entry, and wraps the attachments service's image-save methods. Before DSH normalizes an uploaded image into a metadata-free copy, it stores the PNG's `prompt`, `workflow`, and `parameters` text blocks under the normalized attachment id (`sha256:…`) in `<DSH_HOME>/drawing-pnginfo/`. That is why `drawing_pnginfo` needs no path for an image sent in chat.
+
+## Limitations
+
+- Workflow files must be in ComfyUI's API format. Graphs exported from the UI editor are rejected; use **Export (API)** and save into `api-workflows`.
+- No models, LoRAs, embeddings, or upscale models are shipped. Missing files have to be installed into ComfyUI before generating.
+- One generation at a time is the safe pattern; batch above 1 and large resolutions can exhaust VRAM.
+- The automatic start and stop paths are Windows-specific, and stop only targets the pid recorded by this bundle or a `python.exe` listening on the configured port.
+- Recipe capture only covers images uploaded after the bundle is active. Older files, screenshots, and re-encoded images carry no ComfyUI metadata.
+- The tool descriptions and the per-family guides are written in Chinese; the English README documents the same behavior but the text a model reads at runtime is Chinese.
+
+## Running on another machine
+
+Nothing in this package assumes this author's disk layout or GPU. What it does assume is that **some** ComfyUI answers at the configured origin.
+
+1. **Install and start ComfyUI yourself** (any directory, any vendor). The plugin ships no default install or models path, so it never points at a directory you do not have; it reads the real one once ComfyUI answers. It must listen on `127.0.0.1:8188`, or you change `origin` — in the plugin row config or via `COMFY_ORIGIN`. Windows can use `scripts/start-comfyui.ps1`; macOS/Linux can use `scripts/start-comfyui.sh`, or just `python main.py`.
+2. **Ask for a health check**: `drawing_status` reports the version, device, VRAM, where the model directories came from, whether auto-start is configured, and which families have files. When ComfyUI is unreachable it says what is missing and how to fix it instead of failing obscurely.
+3. **Add models for the family you want**, then draw.
+
+No ComfyUI or model path is preset. Resolution is: explicit config/env first, then the running ComfyUI's own folder table (`/internal/folder_paths`, cached for a minute), and otherwise **unknown** — there is no default path to be wrong about. `drawing_status` says which source was used; an unknown path only costs file sizes, local image lookup and recipe saving, never generation.
+
+| Missing | What still works | What degrades |
+| --- | --- | --- |
+| No ComfyUI at `origin` | `drawing_guide`, `drawing_models` stays empty, `drawing_status` explains the gap | every generation / queue / history / workflow call |
+| No `comfyRoot` / `modelsRoot` configured and ComfyUI cannot report them | model listing (names come from ComfyUI) | file sizes, local image lookup under ComfyUI's `input`/`temp`, recipe saving into ComfyUI folders |
+| No `launch` configured | opening the ComfyUI canvas from the sidebar | auto-starting ComfyUI |
+| Older ComfyUI without `/internal/folder_paths` | everything over HTTP | automatic path discovery (set the paths explicitly) |
+
+Model names are not hardcoded into the call path: omitting `model` picks the first file this machine actually has for that family, and a missing text encoder or VAE is reported with the directory it belongs in.
+
+## Development
+
+`npm test` runs the four offline suites below. Everything else is a standalone script run with Node from the package directory, and needs a live ComfyUI:
+
+```bash
+node test/package-contract.mjs # offline: client module id, exports and slot registrations match the package
+node test/offline-contract.mjs # offline: tool definitions, families, guide reachability and a clean manifest
+node test/guides.mjs          # offline: per-family guides are readable and complete
+node test/pnginfo.mjs         # offline: PNG recipe parsing and capture lookup
+node test/capture.mjs         # offline: Host capture hook against the installed Cordis build
+node test/check-connection.mjs    # live ComfyUI: status and model inventory
+node test/tools-smoke.mjs         # live ComfyUI: all twelve tools end to end
+node test/generate.mjs anima      # live ComfyUI: one image, family classic|anima|krea2|moss
+node test/smoke-extras.mjs        # live ComfyUI: batch, img2img, queue, history, workflows
+node test/timeout-interrupt.mjs   # live ComfyUI: timeout returns a promptId, then interrupt
+node test/verify-variants.mjs     # live ComfyUI: family variant defaults
+```
+
+Tests that need a server read `COMFY_ORIGIN` and default to `http://127.0.0.1:8188`. `npm test` runs only the offline suites (package contract, offline contract, guides, PNG recipes).
+
+## License
+
+MIT. See [LICENSE](LICENSE).

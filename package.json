@@ -1,0 +1,58 @@
+{
+  "name": "dsh-drawing-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ComfyUI toolset and the Minimal drawing agent preset: inspect models, read per-family guides, generate, queue and review images, with a sidebar entry for the canvas.",
+  "author": "LuoSu <2681153600@qq.com>",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "dsh-bundle",
+    "comfyui",
+    "image-generation",
+    "stable-diffusion",
+    "drawing"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/host/index.js",
+  "exports": {
+    ".": "./lib/host/index.js",
+    "./tools": "./lib/tools.js",
+    "./client": "./lib/client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "guides",
+    "test",
+    "scripts",
+    "locale/*.json",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": ">=0.2.0-0"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
+    }
+  },
+  "scripts": {
+    "test": "node test/package-contract.mjs && node test/offline-contract.mjs && node test/guides.mjs && node test/pnginfo.mjs && node test/safetensors.mjs && node test/hardware.mjs && node test/launch.mjs"
+  }
+}
