@@ -30,6 +30,7 @@ Order of use: `drawing_status` → optional `drawing_setup`/`drawing_paths` → 
 - Paths come from ComfyUI's runtime report (`/internal/folder_paths`); config and environment are fallbacks only. Never hardcode a machine path.
 - Credentials live in DSH's credential store: `CIVITAI_TOKEN`, `HF_TOKEN`. There is no token parameter on any tool; never print a token.
 - Generated files: `<outputDir>/<YYYY>/<MM>/<DD>/<time>_<family>_<model>_s<seed>_<n>.png` plus `.json` sidecars and `index.jsonl`.
+- Canvas entry: Desktop opens it in the right sidebar; when DSH runs in a plain browser, the client opens the ComfyUI origin in a new tab instead of failing.
 
 ## Constraints for contributors
 
@@ -78,6 +79,7 @@ dsh plugin --profile <profile> add link:<本地绝对路径>/dsh-drawing-tools
 - 路径以 ComfyUI 运行时自报（`/internal/folder_paths`）为准，配置与环境变量只作兜底；不要写死任何本机路径。
 - 凭据存放在 DSH 凭据库：`CIVITAI_TOKEN`、`HF_TOKEN`。任何工具都没有 token 参数；不要打印 token。
 - 生成文件：`<outputDir>/<年>/<月>/<日>/<时间>_<族>_<模型>_s<seed>_<序号>.png`，另有 `.json` 侧车文件与 `index.jsonl` 索引。
+- 画布入口：桌面版开在右栏；DSH 在纯浏览器里运行时改为新开标签页，不会报错。
 
 ## 贡献约束
 

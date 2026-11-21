@@ -39,7 +39,7 @@ DeepSeek Harness（DSH）本身没有出图能力。这个 bundle 提供 12 个 
 - 每次生成在 ComfyUI 里可见：以 `dsh-drawing-tools` 客户端提交，UI 版工作流写进 ComfyUI 的 Workflows 列表，同一份工作流也嵌在 PNG 里，把图片拖回画布就能打开整张图。
 - 四个模型族（classic、anima、krea2、moss），每族各有步数、CFG、采样器、调度器的推荐值。
 - 内置按族整理的用法指南：提示词写法、分辨率、文字排版、常见坑，由 `drawing_guide` 读取；另有一份提示词模板库（9 个实测模板、负面词包、选族速查）。
-- 侧边栏入口位于 Settings 上方，没启动时自动拉起 ComfyUI，并把画布作为原生浏览器标签开在右栏。
+- 侧边栏入口位于 Settings 上方，没启动时自动拉起 ComfyUI，并把画布打开：桌面版开在右栏的原生标签里；用浏览器直接打开 DSH（没有右栏）时改为新开一个浏览器标签页。
 - 模型官方文档：`drawing_modeldoc` 从 Hugging Face / Civitai 抓取模型卡或说明（也可 import 本地 .md），存到 `<models>/.dsh-docs/<类别>/<slug>/` 并记录来源；`drawing_guide({ model })` 会先返回它，没有才回退族指南。安装时也会自动抓取。
 - 每个模型文件都带 `usage` 字段：直接给出用它出图的调用方式（checkpoint 走 `classic`，四族走本族，其它扩散模型走 `generic` 并配伴生文件）。
 - 缺模型可自助补齐：`drawing_download` 搜索 Civitai、装进 ComfyUI 对应目录、校验 SHA256 并报告落点；token 由宿主持有，不进提示词。
