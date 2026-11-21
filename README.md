@@ -95,7 +95,7 @@ The sidebar entry is the same in every deployment, but how the canvas appears de
 - Model documentation: `drawing_modeldoc` fetches a model's official card/guide from Hugging Face or Civitai (or imports a local `.md`) into `<models>/.dsh-docs/<kind>/<slug>/` with a provenance index, and `drawing_guide({ model })` returns it before falling back to the family guide. Installs capture the source docs automatically.
 - Every model file reports a `usage` field: the exact call that draws with it (`classic` for checkpoints, its own family for the four known ones, `generic` plus companions for anything else).
 - Missing-model recovery: `drawing_download` searches Civitai, installs the file into the right ComfyUI folder, verifies SHA256 and reports where it landed — with the token held by the host, never by the prompt.
-- The **Minimal drawing (极简绘画)** agent preset: the official `minimal` tool table plus the eight `drawing_*` tools, and nothing else (no shell on Windows beyond `pwsh`, no web, todo, jobs, or file editing).
+- The **Minimal drawing (极简绘画)** agent preset: the official `minimal` tool table plus the twelve `drawing_*` tools, and nothing else (no shell on Windows beyond `pwsh`, no web, todo, jobs, or file editing).
 - Recipe recovery from chat images: the original PNG's ComfyUI chunks are captured on upload, so `drawing_pnginfo` can answer from the message's `sha256` even after the file is gone.
 - One-command start/stop of a locally installed ComfyUI, with logs and a pid file kept in a folder you choose.
 
@@ -370,3 +370,4 @@ Tests that need a server read `COMFY_ORIGIN` and default to `http://127.0.0.1:81
 ## License
 
 MIT. See [LICENSE](LICENSE).
+

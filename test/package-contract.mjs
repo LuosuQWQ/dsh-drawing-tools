@@ -21,7 +21,6 @@ const check = (name, ok, detail) => {
   if (!ok) failures.push(name)
 }
 
-check('package name has no scope', !pkg.name.startsWith('@'), pkg.name)
 check('exports["./client"] points at the client bundle', pkg.exports?.['./client'] === './lib/client.js', pkg.exports?.['./client'])
 
 const idMatch = /window\.__ModuleLoader__\.load\(\{\s*(?:\/\/[^\n]*\n\s*)*id:\s*['"]([^'"]+)['"]/.exec(client)

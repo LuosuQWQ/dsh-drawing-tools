@@ -11,6 +11,8 @@ A DeepSeek Harness bundle (`dsh-drawing-tools`) that mounts twelve model-facing 
 ## Install
 
 ```sh
+dsh plugin --profile <profile> add @luosuqwq/dsh-drawing-tools
+
 git clone https://github.com/LuosuQWQ/dsh-drawing-tools.git
 dsh plugin --profile <profile> add link:<absolute path>/dsh-drawing-tools
 # restart DSH; the bundle patch inserts drawing-console + the 极简绘画 preset

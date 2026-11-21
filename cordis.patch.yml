@@ -13,7 +13,7 @@
 
 - insert:
     - id: drawing-console
-      name: 'dsh-drawing-tools'
+      name: '@luosuqwq/dsh-drawing-tools'
       config:
         origin: 'http://127.0.0.1:8188'
         launch:

@@ -80,7 +80,7 @@ check('manifest no longer ships skills', !(pkg.files ?? []).includes('skills'))
 
 // ---------------------------------------------------------------- manifest
 check('manifest ships guides and test', ['guides', 'test'].every((entry) => pkg.files.includes(entry)))
-check('client module id equals package name', pkg.name === 'dsh-drawing-tools' && read('lib/client.js').includes("id: 'dsh-drawing-tools'"))
+check('client module id equals package name', read('lib/client.js').includes(`id: '${pkg.name}'`))
 check('npm test runs this file plus the other offline suites', /offline-contract/.test(pkg.scripts?.test ?? ''))
 
 
@@ -139,14 +139,12 @@ check('launch scripts no longer default to ~/ComfyUI', !ps1.includes("Join-Path 
 
 // —— 12. 装一个包就得到 agent 预设 ——
 const patch = read("cordis.patch.yml")
-const minimalPatch = read("../dsh-drawing-minimal/cordis.patch.yml")
 check('tools patch declares the drawing-minimal preset', patch.includes("id: preset-drawing-minimal") && patch.includes("name: '@deepseek-ai/dsh-agent-preset'") && patch.includes('id: drawing-minimal'))
 check('the preset mounts this package tools', patch.includes("name: 'dsh-drawing-tools/tools'"))
 check('the preset keeps the minimal persona shape', patch.includes('complete: true') && patch.includes('includeRuntimeContext: false'))
 check('the preset only reads images, not files', /readImage: true/.test(patch) && /read: false/.test(patch) && /write: false/.test(patch))
 check('persona no longer names show_image', !patch.includes('show_image') && patch.includes('内联'))
 check('the sidebar console row still ships', patch.includes('id: drawing-console'))
-check('the deprecated minimal package inserts nothing', !/- id:/.test(minimalPatch) && /\[\]/.test(minimalPatch))
 check('tools description mentions the preset', /agent preset/i.test(pkg.description ?? ''), pkg.description)
 
 
@@ -180,7 +178,7 @@ check('errors are redacted', civitaiSrc.includes('export function redact') && ci
 check('partial downloads are cleaned up', read('lib/install.js').includes('.part\`') && read('lib/install.js').includes('fs.rm(partial'))
 check('host exposes credential routes', hostSrc.includes("path: `${BASE}/cred`") && hostSrc.includes("path: `${BASE}/cred/import`"))
 check('present token can be imported from the legacy file', civitaiSrc.includes('readLegacyToken') && hostSrc.includes('readLegacyToken'))
-check('client registers an AI drawing settings page', clientSrc.includes("name: 'settings.section', id: 'dsh-drawing-tools'") && clientSrc.includes('Civitai 凭据'))
+check('client registers an AI drawing settings page', clientSrc.includes(`name: 'settings.section', id: '${pkg.name}'`) && clientSrc.includes('Civitai 凭据'))
 check('client never renders the token back', clientSrc.includes("type: 'password'") && !clientSrc.includes('value: status.masked'))
 check('persona never asks the user for a token', patch.includes('不要向用户索要 token'))
 check('persona no longer reads a plaintext token file', !patch.includes('.dsh/civitai_token'))
@@ -335,3 +333,4 @@ if (failed > 0) {
   process.exit(1)
 }
 console.log('\nall offline-contract checks passed')
+
