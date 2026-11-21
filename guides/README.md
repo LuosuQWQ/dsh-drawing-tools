@@ -1,5 +1,7 @@
 # 模型用法指南 / Model usage guides
 
+English index: [README.en.md](README.en.md)（英文目录；正文为中文，供 agent 读取）
+
 `drawing_guide({ family })` 读取本目录下的某一族用法说明，返回给绘画 agent。
 目的：选到某个模型族时，先按官方文档写的提示词格式、分辨率、参数和坑来出图，
 不要凭记忆编造。
