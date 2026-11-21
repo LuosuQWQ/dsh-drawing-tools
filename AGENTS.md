@@ -1,10 +1,12 @@
 # AGENTS.md — dsh-drawing-tools
 
+English | [中文](#中文)
+
 Machine-actionable notes for coding agents. Human documentation: [README.md](README.md) / [README.zh-CN.md](README.zh-CN.md).
 
 ## What this package is
 
-A DeepSeek Harness bundle (`dsh-drawing-tools`) that mounts eleven model-facing tools and one agent preset. It talks HTTP only to a local ComfyUI; it contains no models and no credentials.
+A DeepSeek Harness bundle (`dsh-drawing-tools`) that mounts twelve model-facing tools and one agent preset. It talks HTTP only to a local ComfyUI; it contains no models and no credentials.
 
 ## Install
 
@@ -39,5 +41,53 @@ Order of use: `drawing_status` → optional `drawing_setup`/`drawing_paths` → 
 
 ```sh
 npm test                         # offline contract, guides, pnginfo, hardware, launch
+COMFY_ORIGIN=http://127.0.0.1:8188 node test/check-connection.mjs
+```
+
+---
+
+<a id="中文"></a>
+
+# AGENTS.md — dsh-drawing-tools（中文）
+
+给编码 agent 的机器可读说明。人类文档：[README.md](README.md) / [README.zh-CN.md](README.zh-CN.md)。
+
+## 这个包是什么
+
+一个 DeepSeek Harness bundle（`dsh-drawing-tools`），挂载 12 个面向模型的工具和一个 agent 预设。它只通过 HTTP 访问本机 ComfyUI，不含任何模型或凭据。
+
+## 安装
+
+```sh
+git clone https://github.com/LuosuQWQ/dsh-drawing-tools.git
+dsh plugin --profile <profile> add link:<本地绝对路径>/dsh-drawing-tools
+# 重启 DSH；bundle patch 会插入 drawing-console 与「极简绘画」预设
+```
+
+要求：DSH 0.2.x、Node 20+、一个运行中的 ComfyUI（默认 `http://127.0.0.1:8188`）。
+
+## 工具
+
+`drawing_status`、`drawing_models`、`drawing_guide`、`drawing_generate`、`drawing_queue`、`drawing_history`、`drawing_workflow`、`drawing_pnginfo`、`drawing_paths`、`drawing_modeldoc`、`drawing_download`、`drawing_setup`。
+
+使用顺序：`drawing_status` → 可选 `drawing_setup`/`drawing_paths` → `drawing_guide`（按族或按模型）→ `drawing_generate` → 把返回的 `markdown` 字段贴进回复。缺资源时：`drawing_pnginfo`（审计）→ `drawing_download`（搜索/安装）→ `drawing_models`（复核）。
+
+## 配置与凭据
+
+- 插件行配置：`origin`、`comfyRoot`、`modelsRoot`、`apiWorkflowsDir`、`uiWorkflowsDir`、`outputDir`、`launch`、`timeoutSeconds`。
+- 路径以 ComfyUI 运行时自报（`/internal/folder_paths`）为准，配置与环境变量只作兜底；不要写死任何本机路径。
+- 凭据存放在 DSH 凭据库：`CIVITAI_TOKEN`、`HF_TOKEN`。任何工具都没有 token 参数；不要打印 token。
+- 生成文件：`<outputDir>/<年>/<月>/<日>/<时间>_<族>_<模型>_s<seed>_<序号>.png`，另有 `.json` 侧车文件与 `index.jsonl` 索引。
+
+## 贡献约束
+
+- 不预设 ComfyUI / 模型路径，一律探测。
+- 不提交 token、本机路径或个人信息；`npm test` 含静态契约检查。
+- 人格保持门槛：只在用户明确要求时出图。
+
+## 验收
+
+```sh
+npm test                         # 离线契约、指南、pnginfo、硬件、启动
 COMFY_ORIGIN=http://127.0.0.1:8188 node test/check-connection.mjs
 ```
