@@ -30,7 +30,7 @@
       config:
         id: drawing-minimal
         name: '极简绘画'
-        description: '以官方 minimal 预设为基底，挂载 9 个 drawing_* 工具（含 Civitai 下载）：只负责出图，不带 skill、web、todo、jobs，文件只读图片、不可编辑。'
+        description: '以官方 minimal 预设为基底，挂载 12 个 drawing_* 工具（含 Civitai 下载）：只负责出图，不带 skill、web、todo、jobs，文件只读图片、不可编辑。'
         order: 6
         plugins:
           - id: persona
