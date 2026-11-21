@@ -8,6 +8,34 @@ DeepSeek Harness (DSH) has no built-in image generation. This bundle adds twelve
 
 Installing this single bundle gives you all three pieces: the twelve tools, the sidebar entry, and the **Minimal drawing (极简绘画)** agent preset (preset id `drawing-minimal`), which shows up in the new-session preset list. You do not need a second package for the preset.
 
+## Quick start / 快速开始
+
+**What it is (EN).** A DeepSeek Harness bundle that turns a local ComfyUI into a drawing agent. One install gives you twelve `drawing_` tools, a sidebar entry that opens the ComfyUI canvas, and the **Minimal drawing (极简绘画)** agent preset. It talks only to your own ComfyUI over HTTP; no cloud service, no bundled models.
+
+**这是什么（中文）。** 一个把本机 ComfyUI 变成绘画 agent 的 DeepSeek Harness 插件包。装一次同时得到 12 个 `drawing_` 工具、一个打开 ComfyUI 画布的侧边栏入口，以及 **极简绘画** agent 预设。它只通过 HTTP 访问你自己的 ComfyUI，不含任何模型、不上传任何数据。
+
+**Install (EN).**
+1. Install ComfyUI (any GPU; `drawing_status` tells you which build and launch flags fit your card) and start it, default `http://127.0.0.1:8188`. No models? `drawing_download` can search Civitai / Hugging Face and install them.
+2. Add the bundle to a DSH profile — Desktop: **Settings → Plugins** and install this repository; CLI:
+   ```sh
+   git clone https://github.com/LuosuQWQ/dsh-drawing-tools.git
+   dsh plugin --profile <profile> add link:<absolute-path>/dsh-drawing-tools
+   ```
+3. Restart DSH (bundles load at startup), open a new session, choose **极简绘画 / Minimal drawing**.
+4. Say what to draw. First check: `drawing_status`; if ComfyUI is installed but not configured for auto-start, `drawing_setup({ action: 'detect' })` / `apply` fixes it.
+
+**安装（中文）。**
+1. 装好 ComfyUI（任意显卡；`drawing_status` 会告诉你该用哪种构建和启动参数）并启动，默认 `http://127.0.0.1:8188`。没有模型时 `drawing_download` 可以从 Civitai / Hugging Face 搜索并安装。
+2. 把 bundle 加进一个 DSH profile——桌面版：**设置 → 插件** 里安装本仓库；命令行：
+   ```sh
+   git clone https://github.com/LuosuQWQ/dsh-drawing-tools.git
+   dsh plugin --profile <profile> add link:<本地绝对路径>/dsh-drawing-tools
+   ```
+3. **重启 DSH**（bundle 在启动时加载），新建会话选 **极简绘画 / Minimal drawing**。
+4. 直接描述画面。先跑 `drawing_status`；ComfyUI 装了但没配自动启动时，用 `drawing_setup({ action: 'detect' })` / `apply` 修好。
+
+**For agents.** Read [AGENTS.md](AGENTS.md) for the machine-actionable contract: tool list, config keys, credential names, path rules and verification steps.
+
 ## Features
 
 - Twelve `drawing_*` tools: status, model inventory, family guide, generation (batch, img2img, LoRA), queue control, history, saved workflows, and PNG recipe inspection.

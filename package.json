@@ -37,7 +37,8 @@
     "README.md",
     "README.zh-CN.md",
     "LICENSE",
-    "package.json"
+    "package.json",
+    "AGENTS.md"
   ],
   "peerDependencies": {
     "@deepseek-ai/dsh-tools": ">=0.2.0-0"
@@ -54,5 +55,13 @@
   },
   "scripts": {
     "test": "node test/package-contract.mjs && node test/offline-contract.mjs && node test/guides.mjs && node test/pnginfo.mjs && node test/safetensors.mjs && node test/hardware.mjs && node test/launch.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuosuQWQ/dsh-drawing-tools.git"
+  },
+  "homepage": "https://github.com/LuosuQWQ/dsh-drawing-tools#readme",
+  "bugs": {
+    "url": "https://github.com/LuosuQWQ/dsh-drawing-tools/issues"
   }
 }
