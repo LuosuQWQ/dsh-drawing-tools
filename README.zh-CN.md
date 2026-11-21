@@ -68,7 +68,7 @@ DeepSeek Harness（DSH）本身没有出图能力。这个 bundle 提供 12 个 
 
 ![agent 生成的 512x512 示例图](docs/preview/example.jpg)
 
-**4** agent 用 `classic` 族生成的结果：512×512、8 步、CFG 4，配方记录在 PNG 里。
+**4** 按叠加了多个风格 LoRA 的 PNG 配方复现的结果（anima-aesthetic-v1.1 + `luotianyi` / `guizhencao` / `yuzusoftstyle` / `YPuddin-FlatCute`，权重 0.4–0.9），1024×1536；配方跟着文件走，所以能精确重建。
 
 ## 功能
 
