@@ -50,6 +50,10 @@ Most ComfyUI bridges give the model one `generate` call and leave everything els
 
 The built-in family guides are Chinese because the agent reads them; an English index of what each one covers is in [guides/README.en.md](guides/README.en.md).
 
+> **First run, please read.** After the bundle is installed, restart DSH and open a new session; choose the **极简绘画 / Minimal drawing** preset. That preset is the installer: it inspects the machine, tells you which ComfyUI build fits the GPU, and with your permission downloads/installs ComfyUI and wires the launch command. When it asks for full permissions, grant them for that session — without them it cannot write outside the workspace or start the server. If an agent is doing this for you, it must tell you first, then report every step and the result.
+
+![Installing ComfyUI from the drawing preset](docs/preview/install.jpg)
+
 **For agents.** Read [AGENTS.md](AGENTS.md) for the machine-actionable contract: tool list, config keys, credential names, path rules and verification steps.
 
 ## Opening the canvas — every case

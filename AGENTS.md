@@ -32,6 +32,13 @@ Order of use: `drawing_status` → optional `drawing_setup`/`drawing_paths` → 
 - Generated files: `<outputDir>/<YYYY>/<MM>/<DD>/<time>_<family>_<model>_s<seed>_<n>.png` plus `.json` sidecars and `index.jsonl`.
 - Canvas entry: Desktop opens it in the right sidebar; when DSH runs in a plain browser, the client opens the ComfyUI origin in a new tab instead of failing.
 
+## Installation protocol (agents)
+
+- Before changing anything, tell the owner what you are about to install and why.
+- Install the bundle, restart DSH, then open a new session with the **极简绘画 / Minimal drawing** preset. The preset drives the ComfyUI install and launch configuration.
+- Ask for full permissions for that session before writing outside the workspace or starting a server.
+- Report each step: what was detected (GPU, ComfyUI presence), what was installed, where it lives, and how to open the canvas.
+
 ## Constraints for contributors
 
 - Do not preset ComfyUI/model paths; discover them.
@@ -80,6 +87,13 @@ dsh plugin --profile <profile> add link:<本地绝对路径>/dsh-drawing-tools
 - 凭据存放在 DSH 凭据库：`CIVITAI_TOKEN`、`HF_TOKEN`。任何工具都没有 token 参数；不要打印 token。
 - 生成文件：`<outputDir>/<年>/<月>/<日>/<时间>_<族>_<模型>_s<seed>_<序号>.png`，另有 `.json` 侧车文件与 `index.jsonl` 索引。
 - 画布入口：桌面版开在右栏；DSH 在纯浏览器里运行时改为新开标签页，不会报错。
+
+## 安装流程（给 agent）
+
+- 动手前先告诉主人你要装什么、为什么。
+- 装好 bundle、重启 DSH 后，新建会话并选 **极简绘画** 预设；由预设引导安装 ComfyUI 与启动配置。
+- 需要写工作区之外或启动服务时，先请求该会话的完全权限。
+- 逐步汇报：探测到什么（显卡、是否已装 ComfyUI）、装了什么、装在哪里、画布怎么打开。
 
 ## 贡献约束
 

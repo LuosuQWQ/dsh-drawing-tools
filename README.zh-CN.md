@@ -40,6 +40,10 @@ DeepSeek Harness（DSH）本身没有出图能力。这个 bundle 提供 12 个 
 
 内置族指南为中文（供 agent 读取）；英文目录见 [guides/README.en.md](guides/README.en.md)。
 
+> **第一次使用请先读。** 装好 bundle 后重启 DSH，新建会话并选择 **极简绘画** 预设。这个预设就是安装器：它会检查机器、告诉你哪种 ComfyUI 构建适合当前显卡，并在你允许后下载安装 ComfyUI、写好启动命令。它请求「完全权限」时请在该会话里授予——否则它无法写工作区之外的目录，也无法启动服务。如果是 agent 帮你装，它必须先告知你，再逐步汇报结果。
+
+![通过绘画预设安装 ComfyUI](docs/preview/install.jpg)
+
 **给 agent。** 工具清单、配置键、凭据名、路径规则与验收步骤见 [AGENTS.md](AGENTS.md)。
 
 ## 画布怎么打开（所有情况）
