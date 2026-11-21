@@ -1,8 +1,8 @@
-# 绘画能力 bundle：8 个 drawing_* 工具、侧边栏入口，以及「极简绘画」agent 预设。
+# 绘画能力 bundle：12 个 drawing_* 工具、侧边栏入口，以及「极简绘画」agent 预设。
 #
 # 两行：
 #   1. preset-drawing-minimal —— agent 预设「极简绘画」。基底是官方 minimal 预设的插件表
-#      （短 persona + 只读图片 + shell + 压缩），额外只挂 8 个 drawing_* 工具，所以这只
+#      （短 persona + 只读图片 + shell + 压缩），额外只挂 12 个 drawing_* 工具，所以这只
 #      agent 没有 skill、没有 web / todo / jobs / 文件读写 / 子 agent。
 #      装本包就同时得到工具、侧边栏入口和这个预设，不需要再装第二个包。
 #   2. drawing-console —— Host 半，只负责 ComfyUI 的地址 / 状态 / 启动 / 停止路由，
