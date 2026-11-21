@@ -349,6 +349,12 @@ Model names are not hardcoded into the call path: omitting `model` picks the fir
 
 ## Development
 
+Install the dev dependencies once (they are only needed for the offline tests):
+
+```sh
+npm install
+```
+
 `npm test` runs the four offline suites below. Everything else is a standalone script run with Node from the package directory, and needs a live ComfyUI:
 
 ```bash

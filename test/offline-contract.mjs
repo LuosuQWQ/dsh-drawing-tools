@@ -141,6 +141,8 @@ check('launch scripts no longer default to ~/ComfyUI', !ps1.includes("Join-Path 
 const patch = read("cordis.patch.yml")
 check('tools patch declares the drawing-minimal preset', patch.includes("id: preset-drawing-minimal") && patch.includes("name: '@deepseek-ai/dsh-agent-preset'") && patch.includes('id: drawing-minimal'))
 check('the preset mounts this package tools', patch.includes(`name: '${pkg.name}/tools'`))
+const workflowTool = tools.slice(tools.indexOf("name: 'drawing_workflow'"))
+check('drawing_workflow defines withMarkdown before using it', /const withMarkdown =/.test(workflowTool.slice(0, 8000)))
 check('the preset keeps the minimal persona shape', patch.includes('complete: true') && patch.includes('includeRuntimeContext: false'))
 check('the preset only reads images, not files', /readImage: true/.test(patch) && /read: false/.test(patch) && /write: false/.test(patch))
 check('persona no longer names show_image', !patch.includes('show_image') && patch.includes('内联'))

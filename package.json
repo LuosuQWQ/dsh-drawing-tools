@@ -1,6 +1,6 @@
 {
   "name": "@luosuqwq/dsh-drawing-tools",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "ComfyUI toolset and the Minimal drawing agent preset: inspect models, read per-family guides, generate, queue and review images, with a sidebar entry for the canvas.",
   "author": "LuoSu <2681153600@qq.com>",
   "keywords": [
@@ -62,5 +62,11 @@
   "homepage": "https://github.com/LuosuQWQ/dsh-drawing-tools#readme",
   "bugs": {
     "url": "https://github.com/LuosuQWQ/dsh-drawing-tools/issues"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "^4.1.0",
+    "@deepseek-ai/dsh-client-modules": "0.2.2-rc.5",
+    "@deepseek-ai/dsh-credentials": "0.2.2-rc.5",
+    "@deepseek-ai/dsh-tools": "0.2.2-rc.5"
   }
 }
