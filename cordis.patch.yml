@@ -82,7 +82,7 @@
               # 长活就显式传 timeoutMs（上限 600000）。
               enableRunInBackground: false
           - id: drawing-tools
-            name: 'dsh-drawing-tools/tools'
+            name: '@luosuqwq/dsh-drawing-tools/tools'
           - id: tool-fs
             name: '@deepseek-ai/dsh-tool-fs'
             config:
@@ -103,3 +103,4 @@
           - id: tool-bash
             name: '@deepseek-ai/dsh-tool-bash'
             disabled: !!js process.platform === 'win32'
+
