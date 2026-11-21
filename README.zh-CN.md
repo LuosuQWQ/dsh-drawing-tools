@@ -64,7 +64,7 @@ DeepSeek Harness（DSH）本身没有出图能力。这个 bundle 提供 12 个 
 
 ![桌面客户端右栏里的画布](docs/preview/task.jpg)
 
-**3** 在桌面客户端里按 PNG 配方复刻：agent 读取内嵌工作流（anima-aesthetic-v1.1 + qwen3-0.6b + qwen-image-vae、`luotianyi_anima_v1` LoRA 0.9、1024×1536、30 步、CFG 4），把原来的 TIPO 随机提示词替换成固定描述后重跑，并把新工作流写进 ComfyUI 的 Workflows 列表（`dsh-drawing-20261122-043654.json`）。
+**3** 在桌面客户端里按 PNG 配方复刻：agent 读取内嵌工作流，保留模型、采样器与叠加的 LoRA，把原来的随机提示词换成固定描述后重跑，并把新图保存进 ComfyUI 的 Workflows 列表；右侧画布就是保存后的工作流，能看到 `LoraLoader` 链。
 
 ![agent 生成的 512x512 示例图](docs/preview/example.jpg)
 
