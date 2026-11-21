@@ -5,11 +5,13 @@ import { readFileSync } from 'node:fs'
 const source = readFileSync(new URL('../lib/comfy-client.js', import.meta.url), 'utf8')
 const start = source.indexOf('export async function runWorkflow')
 if (start < 0) throw new Error('runWorkflow not found')
-const body = source.slice(start, start + 4000)
+const body = source.slice(start, start + 4500)
 
 const checks = [
-  ['rerun saves the UI workflow', /saveUserWorkflow\(origin, `dsh-run-/.test(body)],
+  ['rerun computes a unique workflow name', /const workflowName = `dsh-run-\$\{sourceName\}-\$\{timestamp\(\)\}`/.test(body)],
+  ['rerun saves the UI workflow', /saveUserWorkflow\(origin, workflowName, runUiWorkflow\)/.test(body)],
   ['rerun reports workflowSaved', /workflowSaved/.test(body)],
+  ['rerun reports workflowName', /workflowName/.test(body)],
 ]
 let failed = 0
 for (const [name, ok] of checks) {
