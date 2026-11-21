@@ -54,7 +54,7 @@
     }
   },
   "scripts": {
-    "test": "node test/package-contract.mjs && node test/offline-contract.mjs && node test/guides.mjs && node test/pnginfo.mjs && node test/safetensors.mjs && node test/hardware.mjs && node test/launch.mjs"
+    "test": "node test/package-contract.mjs && node test/offline-contract.mjs && node test/guides.mjs && node test/pnginfo.mjs && node test/safetensors.mjs && node test/hardware.mjs && node test/launch.mjs && node test/workflow-save.mjs"
   },
   "repository": {
     "type": "git",
