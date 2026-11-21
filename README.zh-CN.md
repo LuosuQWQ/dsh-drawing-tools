@@ -62,9 +62,9 @@ DeepSeek Harness（DSH）本身没有出图能力。这个 bundle 提供 12 个 
 
 **1** **极简绘画** 预设：12 个 `drawing_` 工具，不带编辑器/网页工具，人格只在明确要求时出图。**2** 设置上方的 **AI 绘画** 入口：显示 ComfyUI 状态、可停止服务、可打开画布；底部 toast 会说明打开方式。
 
-![桌面客户端右栏里的画布](docs/preview/canvas.jpg)
+![桌面客户端右栏里的画布](docs/preview/task.jpg)
 
-**3** 画布就是 DSH 右栏里的真实 ComfyUI 页面。工作流保存为 `dsh-drawing/<日期>_<族>`，每个节点都是 agent 提交的那一次，所以同一张图可以重新打开、重新跑。
+**3** 桌面客户端全貌：会话里的生成任务与图片，右侧是 ComfyUI 画布。工作流保存为 `dsh-drawing/<日期>_<族>`，每个节点都是 agent 提交的那一次，所以同一张图可以重新打开、重新跑。
 
 ![agent 生成的 512x512 示例图](docs/preview/example.jpg)
 
