@@ -173,6 +173,16 @@ check('download writes provenance', tools.includes('install.writeProvenance'))
 check('download supports hugging face', tools.includes('hf.listFiles') && tools.includes('hf.downloadUrlFor'))
 check('download supports generic web search', tools.includes('webService.search'))
 check('download tool exposes search, files, find and download', /enum: \['search', 'files', 'find', 'download'\]/.test(tools))
+// 2026-11-23 复盘：/internal/folder_paths 的失败结果被缓存满 60 秒，ComfyUI 起来之后
+// drawing_download 仍然一直报"不知道要安装到哪个目录"。失败只允许短缓存，且 fresh 必须能穿透。
+check('folder_paths caps how long a failure is cached', comfy.includes('NEGATIVE_TTL_MS') && comfy.includes('hit.value === null ? Math.min(maxAgeMs, NEGATIVE_TTL_MS)'))
+check('folder_paths honours maxAgeMs: 0', comfy.includes('Number.isFinite(requested) && requested >= 0 ? requested : 60_000'))
+// 同一份复盘：路径报告曾把"端点没自报"直接说成"ComfyUI 离线"。
+check('paths report probes liveness before claiming offline', tools.includes('const live = await comfy.status(settings.origin)'))
+// 复盘：pnginfo 只拿配置里的 modelsRoot 核对 LoRA，没配置时每个 LoRA 都显示"未找到同名文件"。
+check('pnginfo resolves LoRA against the live models root', tools.includes('describeRecipe(recipe, pngLayout?.modelsRoot ?? settings.modelsRoot)'))
+// 复盘：Civitai 一个模型多个版本，search 只吐 versions[0]，Anima 版本搜不到。
+check('civitai search exposes every model version', civitaiSrc.includes('versions: versions.map(') && tools.includes('versionId=${version.versionId'))
 check('token comes from the credential service', civitaiSrc.includes("CIVITAI_REF_NAME = 'CIVITAI_TOKEN'") && civitaiSrc.includes('credentials.resolve'))
 check('token falls back to the environment', civitaiSrc.includes('process.env[CIVITAI_REF_NAME]'))
 check('no tool parameter accepts a token', !tools.includes('token: { type:') && civitaiSrc.includes('describeNamedToken'))
