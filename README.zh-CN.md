@@ -235,6 +235,8 @@ drawing_generate({ family: 'anima', model: 'anima-aesthetic-v1.1.safetensors', p
 
 这张图需要 `anima-aesthetic-v1.1` + `qwen3-0.6b-base` + `qwen-image-vae` 和三个风格 LoRA（YPuddin 0.4 / guizhencao 0.5 / yuzusoft 0.6）。缺文件时 `drawing_pnginfo` 会把它们列进 `missing`，`drawing_generate` 会明确指出缺哪一个。
 
+**粘贴的图片也不会丢元数据了。** 客户端在粘贴/拖入时先把**原始字节**存到 `<DSH_HOME>/drawing-pnginfo/originals/<sha256>.png`（附件随后仍会被归一化成 JPEG）。`drawing_pnginfo({ sha256 })` 会优先解析这份原图；能拿到来源路径时（拖入，或剪贴板里带 `file://` URI）会作为 `originalPath` 返回并写进 sidecar。
+
 ## Civitai 凭据
 
 `drawing_download` 只在模型需要登录（以及 Civitai 拒绝匿名搜索）时才用到 token。token 不是配置、也不会进模型上下文：

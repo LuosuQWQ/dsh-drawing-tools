@@ -245,6 +245,8 @@ drawing_generate({ family: 'anima', model: 'anima-aesthetic-v1.1.safetensors', p
 
 It needs `anima-aesthetic-v1.1` + `qwen3-0.6b-base` + `qwen-image-vae` and three style LoRAs (YPuddin 0.4 / guizhencao 0.5 / yuzusoft 0.6). When a file is absent, `drawing_pnginfo` lists it under `missing` and `drawing_generate` names the exact one.
 
+**Pasted images keep their metadata too.** On paste or drop the client first stores the untouched bytes under `<DSH_HOME>/drawing-pnginfo/originals/<sha256>.png` (the attachment itself is still normalized to JPEG). `drawing_pnginfo({ sha256 })` parses that original; when a source path is available (drag-and-drop, or a `file://` URI in the clipboard) it is returned as `originalPath` and written to the sidecar.
+
 ## Civitai credentials
 
 `drawing_download` needs a token only for models that require a login (and for searches Civitai refuses anonymously). The token is never configuration and never reaches the model:

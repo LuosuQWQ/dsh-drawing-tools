@@ -1,6 +1,6 @@
 {
   "name": "@luosuqwq/dsh-drawing-tools",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "ComfyUI toolset and the Minimal drawing agent preset: inspect models, read per-family guides, generate, queue and review images, with a sidebar entry for the canvas.",
   "author": "LuoSu <2681153600@qq.com>",
   "keywords": [
@@ -53,7 +53,7 @@
     }
   },
   "scripts": {
-    "test": "node test/package-contract.mjs && node test/offline-contract.mjs && node test/guides.mjs && node test/pnginfo.mjs && node test/safetensors.mjs && node test/hardware.mjs && node test/launch.mjs && node test/workflow-save.mjs && node test/fixture-recipe.mjs"
+    "test": "node test/package-contract.mjs && node test/offline-contract.mjs && node test/guides.mjs && node test/pnginfo.mjs && node test/safetensors.mjs && node test/hardware.mjs && node test/launch.mjs && node test/workflow-save.mjs && node test/fixture-recipe.mjs && node test/original-store.mjs"
   },
   "repository": {
     "type": "git",
