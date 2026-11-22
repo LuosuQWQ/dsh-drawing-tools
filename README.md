@@ -235,6 +235,7 @@ How a file is used afterwards, by kind: a **checkpoint** draws through `classic`
 - Or set the environment variable `CIVITAI_TOKEN` and restart DSH. A stored value outranks the environment, exactly as DSH's credential rules state.
 - An older install that kept a plaintext `~/.dsh/civitai_token` is not read directly; the panel offers **从旧文件导入** once, and leaves the file for you to delete.
 - No tool parameter accepts a token. Do not paste one into a prompt: it would become part of the conversation. Errors are redacted (`token=***`, `Bearer ***`) before they reach the model.
+- The token is sent only to the official hosts (`civitai.com` / `huggingface.co`). Mirrors such as `civitai.red` or `hf-mirror.com` never receive it; if a mirror then answers 401, the error says the token was deliberately withheld instead of asking you to re-enter it.
 
 ## Output layout and path rules
 

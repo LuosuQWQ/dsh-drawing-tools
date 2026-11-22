@@ -171,7 +171,7 @@ check('download tool is defined', tools.includes("name: 'drawing_download'"))
 check('download installs through the normalizer', tools.includes('install.installResponse') && tools.includes('install.sanitizeFileName'))
 check('download writes provenance', tools.includes('install.writeProvenance'))
 check('download supports hugging face', tools.includes('hf.listFiles') && tools.includes('hf.downloadUrlFor'))
-check('download supports generic web search', tools.includes('webService.search'))
+check('download supports generic web search', tools.includes('web.search({ query'))
 check('download tool exposes search, files, find and download', /enum: \['search', 'files', 'find', 'download'\]/.test(tools))
 // 2026-11-23 复盘：/internal/folder_paths 的失败结果被缓存满 60 秒，ComfyUI 起来之后
 // drawing_download 仍然一直报"不知道要安装到哪个目录"。失败只允许短缓存，且 fresh 必须能穿透。
@@ -183,6 +183,12 @@ check('paths report probes liveness before claiming offline', tools.includes('co
 check('pnginfo resolves LoRA against the live models root', tools.includes('describeRecipe(recipe, pngLayout?.modelsRoot ?? settings.modelsRoot)'))
 // 复盘：Civitai 一个模型多个版本，search 只吐 versions[0]，Anima 版本搜不到。
 check('civitai search exposes every model version', civitaiSrc.includes('versions: versions.map(') && tools.includes('versionId=${version.versionId'))
+// 2026-11-23 复盘：镜像站（civitai.red / hf-mirror.com）是第三方，不该收到用户的 API key。
+check('civitai sends the token only to its own host', civitaiSrc.includes('AUTH_HOSTS') && civitaiSrc.includes('authHeaders(token, `${host}${pathname}`)'))
+check('hugging face keeps the token away from mirrors', read('lib/huggingface.js').includes('const authFor = (host, token)') && !read('lib/huggingface.js').includes('...(token ? { authorization'))
+check('download gates the token by host', tools.includes('officialDownloadHost(candidate)') && tools.includes('镜像站是第三方'))
+// 复盘：workingDirectory / web / configEditor 以前也只在 apply() 抓一次，和凭据服务同一类问题。
+check('optional services are re-resolved per call', tools.includes("serviceNow('workingDirectory'") && tools.includes("serviceNow('configEditor'") && tools.includes("serviceNow('web'"))
 check('token comes from the credential service', civitaiSrc.includes("CIVITAI_REF_NAME = 'CIVITAI_TOKEN'") && civitaiSrc.includes('credentials.resolve'))
 check('token falls back to the environment', civitaiSrc.includes('process.env[CIVITAI_REF_NAME]'))
 check('no tool parameter accepts a token', !tools.includes('token: { type:') && civitaiSrc.includes('describeNamedToken'))
@@ -296,7 +302,7 @@ check('a JSONL index is written', outSrc.includes('index.jsonl') && outSrc.inclu
 check('comfy paths prefer the runtime report', tools.includes('discoveredModelsRoot ?? settings.modelsRoot') && tools.includes('modelsRootMismatch'))
 check('status prints the path reconciliation', tools.includes('路径:') && tools.includes('drawing_paths({ action'))
 check('drawing_paths is registered', tools.includes('function pathsTool') && tools.includes('pathsTool(settings)'))
-check('adopt writes discovered paths back', tools.includes('configEditorService.edit'))
+check('adopt writes discovered paths back', tools.includes('editor.edit(pluginEntry'))
 
 // —— 24. 路径只以 ComfyUI 自报为准 ——
 check('settings ignore path env vars', !tools.includes('process.env.COMFY_ROOT ||') && !tools.includes('process.env.COMFY_MODELS_ROOT)') && tools.includes('const configuredComfyRoot = config.comfyRoot || null'))
@@ -344,7 +350,7 @@ check('host uses detection when launch is unset', hostSrc.includes('detectLaunch
 check('host explains an unconfigured launch', hostSrc.includes('drawing_setup') && hostSrc.includes('自动启动未就绪'))
 check('status reports launch detection', tools.includes('launchDetected') && tools.includes('可自动启动'))
 check('drawing_setup is registered with detect and apply', tools.includes('function setupTool') && tools.includes("enum: ['detect', 'apply']") && tools.includes('setupTool(settings)'))
-check('setup writes the host launch config', tools.includes('configEditorService.entries()') && tools.includes('launch: { ...(current?.launch ?? {}), ...launchConfig }'))
+check('setup writes the host launch config', tools.includes('editor.entries()') && tools.includes('launch: { ...(current?.launch ?? {}), ...launchConfig }'))
 if (failed > 0) {
   console.log(`\n${failed} check(s) failed`)
   process.exit(1)
