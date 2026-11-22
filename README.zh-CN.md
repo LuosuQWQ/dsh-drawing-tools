@@ -220,7 +220,7 @@ bundle 里这几项启动路径默认留空，因此在你提供之前自动启�
 
 ## 复刻测试样例
 
-`test/fixtures/anima-cam-recipe.png` 是一张自带 ComfyUI API 工作流的 PNG，用来验证「看图 → 读配方 → 复刻」这条链路。像素缩到 768×1152 以控制仓库体积，配方里的尺寸仍是原始的 1024×1536。
+`test/fixtures/anima-cam-recipe.png` 是 ComfyUI 的**原始输出文件**（1024×1536，sha256 `2bb77d7f…`），没有做任何重编码，导出时自带的 `prompt` 文本块原样保留，用来验证「看图 → 读配方 → 复刻」这条链路。注意：聊天里贴图会被客户端重编码成 JPEG，只有在仓库里按路径读这个文件才能拿到完整元数据。
 
 ![复刻测试样例](test/fixtures/anima-cam-recipe.png)
 

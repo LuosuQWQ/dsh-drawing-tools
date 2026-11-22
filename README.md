@@ -230,7 +230,7 @@ How a file is used afterwards, by kind: a **checkpoint** draws through `classic`
 
 ## Replication fixture
 
-`test/fixtures/anima-cam-recipe.png` is a PNG that carries its own ComfyUI API workflow, so the whole "look at an image → read the recipe → reproduce it" path can be tested without a local sample. Pixels are downscaled to 768×1152 to keep the repo small; the recipe itself still says 1024×1536.
+`test/fixtures/anima-cam-recipe.png` is ComfyUI's **original output file** (1024×1536, sha256 `2bb77d7f…`), byte-for-byte, with the `prompt` text chunk exactly as exported. Use it to test the "look at an image → read the recipe → reproduce it" path. Note: images pasted into chat are re-encoded to JPEG by the client, so only reading this file by path gives you the full metadata.
 
 ![Replication fixture](test/fixtures/anima-cam-recipe.png)
 
