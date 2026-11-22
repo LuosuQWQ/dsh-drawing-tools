@@ -1,6 +1,6 @@
 English | [简体中文](README.zh-CN.md)
 
-# dsh-drawing-tools
+# HuiJianRong
 
 > Local AI image generation for DeepSeek Harness through a ComfyUI server.
 

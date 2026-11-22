@@ -1,6 +1,6 @@
 [English](README.md) | 简体中文
 
-# dsh-drawing-tools
+# 绘兼容
 
 > 让 DeepSeek Harness 通过 ComfyUI 服务做本地 AI 绘画。
 

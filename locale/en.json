@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Drawing tools",
+    "title": "HuiJianRong",
     "description": "Provides twelve `drawing_*` tools that drive a local ComfyUI server, plus a sidebar entry that opens the ComfyUI canvas on click. The tools are mounted by the Minimal drawing preset only; the sidebar entry works on its own."
   }
 }
