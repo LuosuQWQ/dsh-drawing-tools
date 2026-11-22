@@ -182,6 +182,11 @@ check('host exposes credential routes', hostSrc.includes("path: `${BASE}/cred`")
 check('present token can be imported from the legacy file', civitaiSrc.includes('readLegacyToken') && hostSrc.includes('readLegacyToken'))
 check('client registers an AI drawing settings page', clientSrc.includes(`name: 'settings.section', id: '${pkg.name}'`) && clientSrc.includes('Civitai 凭据'))
 check('client never renders the token back', clientSrc.includes("type: 'password'") && !clientSrc.includes('value: status.masked'))
+// 桌面版页面挂在 dsh-app://，相对路径到不了 Host 网关：凭据面板必须和其余接口一样走 hostJson。
+check('credential panel goes through the host base', clientSrc.includes("hostJson('/cred'") && clientSrc.includes("hostJson('/cred/import'") && !clientSrc.includes('fetch(API_PREFIX'))
+// 凭据服务可能在 bundle 挂载之后才注册：工具调用时要现取，不能只用 apply 时的那一份。
+check('tools re-resolve the credential service per call', tools.includes('const credentialsNow') && tools.includes("activeContext?.get?.('credentials')") && tools.includes('resolveToken(credentialsNow())'))
+check('401 explains whether a token was attached', tools.includes('已附带 token（来源') && tools.includes('没有可用的 token'))
 check('persona never asks the user for a token', patch.includes('不要向用户索要 token'))
 check('persona no longer reads a plaintext token file', !patch.includes('.dsh/civitai_token'))
 check('persona uses the download tool', patch.includes('drawing_download({ action:'))
