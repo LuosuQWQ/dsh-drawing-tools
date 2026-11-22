@@ -218,6 +218,23 @@ bundle 里这几项启动路径默认留空，因此在你提供之前自动启�
 - **来源记录**：每次安装写 `<models>/.dsh-install/<目录>/<文件>.json`，含来源、URL（token 已脱敏）、类别、SHA256、字节数与时间，便于回溯与卸载。
 - **凭据**：Civitai 用 `CIVITAI_TOKEN`，Hugging Face 用 `HF_TOKEN`，都走 DSH 凭据库，环境变量兜底。任何工具参数都不接受 token。
 
+## 复刻测试样例
+
+`test/fixtures/anima-cam-recipe.png` 是一张自带 ComfyUI API 工作流的 PNG，用来验证「看图 → 读配方 → 复刻」这条链路。像素缩到 768×1152 以控制仓库体积，配方里的尺寸仍是原始的 1024×1536。
+
+![复刻测试样例](test/fixtures/anima-cam-recipe.png)
+
+```js
+// 1. 读配方：模型 / 三个风格 LoRA / seed / 步数 / CFG / 尺寸
+drawing_pnginfo({ path: 'test/fixtures/anima-cam-recipe.png' })
+// 2. 缺哪个文件补哪个（返回里的 missing 会写清）
+drawing_download({ action: 'search', query: '<缺失的 LoRA 名>', kind: 'lora' })
+// 3. 按原配方出图
+drawing_generate({ family: 'anima', model: 'anima-aesthetic-v1.1.safetensors', prompt: '...', lora: [...], seed: 11111, steps: 30, cfg: 4.5, width: 1024, height: 1536 })
+```
+
+这张图需要 `anima-aesthetic-v1.1` + `qwen3-0.6b-base` + `qwen-image-vae` 和三个风格 LoRA（YPuddin 0.4 / guizhencao 0.5 / yuzusoft 0.6）。缺文件时 `drawing_pnginfo` 会把它们列进 `missing`，`drawing_generate` 会明确指出缺哪一个。
+
 ## Civitai 凭据
 
 `drawing_download` 只在模型需要登录（以及 Civitai 拒绝匿名搜索）时才用到 token。token 不是配置、也不会进模型上下文：

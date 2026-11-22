@@ -228,6 +228,23 @@ How a file is used afterwards, by kind: a **checkpoint** draws through `classic`
 - **Provenance**: each install writes `<models>/.dsh-install/<folder>/<file>.json` with source, URL (token redacted), kind, SHA256, byte count and timestamp, so a model can be traced or removed later.
 - **Credentials**: Civitai uses `CIVITAI_TOKEN`, Hugging Face uses `HF_TOKEN`, both through DSH's credential store with an environment fallback. No tool parameter accepts a token.
 
+## Replication fixture
+
+`test/fixtures/anima-cam-recipe.png` is a PNG that carries its own ComfyUI API workflow, so the whole "look at an image → read the recipe → reproduce it" path can be tested without a local sample. Pixels are downscaled to 768×1152 to keep the repo small; the recipe itself still says 1024×1536.
+
+![Replication fixture](test/fixtures/anima-cam-recipe.png)
+
+```js
+// 1. Read the recipe: models / three style LoRAs / seed / steps / CFG / size
+drawing_pnginfo({ path: 'test/fixtures/anima-cam-recipe.png' })
+// 2. Install whatever is missing (the result lists `missing`)
+drawing_download({ action: 'search', query: '<missing LoRA name>', kind: 'lora' })
+// 3. Generate with the original recipe
+drawing_generate({ family: 'anima', model: 'anima-aesthetic-v1.1.safetensors', prompt: '...', lora: [...], seed: 11111, steps: 30, cfg: 4.5, width: 1024, height: 1536 })
+```
+
+It needs `anima-aesthetic-v1.1` + `qwen3-0.6b-base` + `qwen-image-vae` and three style LoRAs (YPuddin 0.4 / guizhencao 0.5 / yuzusoft 0.6). When a file is absent, `drawing_pnginfo` lists it under `missing` and `drawing_generate` names the exact one.
+
 ## Civitai credentials
 
 `drawing_download` needs a token only for models that require a login (and for searches Civitai refuses anonymously). The token is never configuration and never reaches the model:
