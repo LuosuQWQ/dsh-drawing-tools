@@ -118,13 +118,13 @@ check('status explains missing ComfyUI and port changes', tools.includes('没装
 check('generate picks a real model instead of a hardcoded name', tools.includes('candidates[0].name') && tools.includes('在这台机器的 ComfyUI 里没有可用模型'))
 check('generate validates companion text encoder / VAE', tools.includes('text encoder') && tools.includes('同族模型与伴生文件要配套'))
 check('workflow dirs fall back to the discovered root', /function workflowDirs\(settings, layout = null\)/.test(tools) && tools.includes("path.join(layout.comfyRoot, 'api-workflows')"))
-check('models sizes use the resolved root', /listModels\(settings\.origin, \{ modelsRoot: layout\.modelsRoot \}\)/.test(tools))
+check('models sizes use the resolved roots', /listModels\(settings\.origin, \{ modelsRoot: layout\.modelRoots/.test(tools))
 
 
 // —— 11. 不预设任何 ComfyUI / 模型路径 ——
 check('no default ComfyUI install path', !comfySrc.includes("path.join(os.homedir(), 'ComfyUI')") && !tools.includes("path.join(os.homedir(), 'ComfyUI')"))
 check('DEFAULT_MODELS_ROOT never comes from the environment', comfySrc.includes('export const DEFAULT_MODELS_ROOT = null') && !comfySrc.includes('process.env.COMFY_MODELS_ROOT'))
-check('sizes skip when the root is unknown', comfySrc.includes("if (typeof modelsRoot !== 'string' || modelsRoot === '') return null"))
+check('sizes skip when no root is known', comfySrc.includes('for (const modelsRoot of toRootArray(modelsRoots))') && comfySrc.includes('return null'))
 check('layout source has an explicit unknown state', tools.includes("'none'") && !tools.includes(": 'guess'"))
 check('settings keep unknown roots as null', tools.includes('modelsRoot: configuredModelsRoot ? path.resolve(configuredModelsRoot) : null') && tools.includes('const comfyRoot = configuredComfyRoot ? path.resolve(configuredComfyRoot) : null'))
 check('workflows fall back to the plugin own dir when ComfyUI root is unknown', tools.includes(": ownWorkflowsDir)") && tools.includes("path.join(comfyRoot, 'api-workflows')"))
@@ -180,8 +180,15 @@ check('folder_paths honours maxAgeMs: 0', comfy.includes('Number.isFinite(reques
 // 同一份复盘：路径报告曾把"端点没自报"直接说成"ComfyUI 离线"。
 check('paths report probes liveness before claiming offline', tools.includes('const live = await comfy.status(settings.origin)'))
 // 复盘：pnginfo 只拿配置里的 modelsRoot 核对 LoRA，没配置时每个 LoRA 都显示"未找到同名文件"。
-check('pnginfo resolves LoRA against the live models root', tools.includes('describeRecipe(recipe, pngLayout?.modelsRoot ?? settings.modelsRoot)'))
+check('pnginfo resolves LoRA against the live models root', tools.includes('describeRecipe(recipe, pngLayout?.modelRoots ?? settings.modelsRoot)'))
 // 复盘：Civitai 一个模型多个版本，search 只吐 versions[0]，Anima 版本搜不到。
+// 2026-11-23 复盘（第二批）：Civitai 搜索只取第一页；extra_model_paths 的额外根被忽略；
+// LoRA 的磁盘目录名写成单数 lora，导致所有 LoRA 大小都显示"大小未知"。
+check('civitai search follows nextCursor across pages', civitaiSrc.includes('nextCursor') && civitaiSrc.includes('pages = 1'))
+check('search tool exposes a pages argument', tools.includes("pages: { type: 'integer'") && tools.includes('pages: args?.pages ?? 2'))
+check('layout keeps every extra_model_paths root', comfy.includes('modelRoots') && comfy.includes('export function toRootArray'))
+check('model sizes use the dirs ComfyUI reported', comfy.includes('DISK_DIR_VARIANTS') && comfy.includes('fileSizeGB(dirs, modelsRoot, spec.folder, name)'))
+check('listModels receives the discovered dirs', tools.includes('dirs: layout.discovered?.dirs ?? null'))
 check('civitai search exposes every model version', civitaiSrc.includes('versions: versions.map(') && tools.includes('versionId=${version.versionId'))
 // 2026-11-23 复盘：镜像站（civitai.red / hf-mirror.com）是第三方，不该收到用户的 API key。
 check('civitai sends the token only to its own host', civitaiSrc.includes('AUTH_HOSTS') && civitaiSrc.includes('authHeaders(token, `${host}${pathname}`)'))

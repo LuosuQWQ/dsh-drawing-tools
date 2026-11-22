@@ -210,6 +210,7 @@ bundle 里这几项启动路径默认留空，因此在你提供之前自动启�
 装完之后怎么用，按类别分：**checkpoint** 走 `classic`（SD1.5 / SDXL / Pony 都能用 `CheckpointLoaderSimple` 加载）；**LoRA** 通过 `lora` 参数加到任意族；**VAE / text encoder** 只是零件，不能单独出图；其它**扩散模型**走 `family: 'generic'`，必须显式给 `textEncoder` 与 `vae`（`.gguf` 自动用 GGUF 加载器）。`drawing_models` 在每个文件的 `usage` 字段里写明这一点，`drawing_download` 装完也会直接给出用法。
 
 - **按类别落目录**：`lora`→`loras`、`checkpoint`→`checkpoints`、`diffusion_model`→`diffusion_models`、`vae`→`vae`、`text_encoder`→`text_encoders`、`controlnet`→`controlnet`、`embedding`→`embeddings`、`upscale_model`→`upscale_models`、`clip_vision`→`clip_vision`。根目录来自 ComfyUI 自报或 `config.modelsRoot`，从不猜。
+- **多模型根**：ComfyUI 用 `extra_model_paths.yaml` 把模型分散到多个目录时，文件大小与 LoRA 核对会遍历全部自报目录；安装仍落到该类别的主目录（第一个）。
 - **文件名**保留可读形式（中文、空格、点号），但去掉路径、控制字符与 Windows 禁用字符；缺少模型扩展名时按类别补上；超过 120 字符截断，避免 Windows 路径超限。
 - **不覆盖**：同名且非空的文件直接报告「已存在」并跳过；安装过程中出现同名冲突则改为 `name-2.safetensors`。
 - **原子写入**：先落 `.part`，SHA256 校验通过后才改名；下载失败或取消会删掉半截文件。
