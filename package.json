@@ -1,6 +1,6 @@
 {
   "name": "@luosuqwq/dsh-drawing-tools",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "ComfyUI toolset and the Minimal drawing agent preset: inspect models, read per-family guides, generate, queue and review images, with a sidebar entry for the canvas.",
   "author": "LuoSu <2681153600@qq.com>",
   "keywords": [
