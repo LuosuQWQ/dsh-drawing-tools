@@ -328,7 +328,7 @@ ComfyUI 运行时自报的路径（`/internal/folder_paths`）优先于配置，
 
 工具是纯 Node 代码，通过 HTTP 与 ComfyUI 交互：`/object_info` 取模型清单，`/system_stats` 与 `/queue` 取状态，`/prompt` 提交工作流，轮询 `/history/<id>` 取结果，用 `/view` 下载图片，图生图输入走 `/upload/image`。每族对应一张工作流图，以 ComfyUI 的 API 格式提交；生成结果只落盘、不进模型上下文。
 
-Host 半提供入口需要的配置、状态、启动、停止、日志路由，并在 attachments 服务归一化图片之前包了一层保存方法：把 PNG 里的 `prompt`、`workflow`、`parameters` 文本块按归一化后的附件 id（`sha256:…`）存进 `<DSH_HOME>/drawing-pnginfo/`。所以聊天里发过的图，`drawing_pnginfo` 不传路径也能读配方。
+Host 半提供入口需要的配置、状态、启动、停止、日志路由——这些路由在做任何事之前都先调 `ctx.connection.requestRejection`：准入检查会过一遍 Host/Origin 围栏并要求一个已认证的 DSH 会话，所以用户浏览器里开着的任意网页没法借回环端口启动/停止 ComfyUI、改掉 Civitai token 或读到日志；客户端先试 transport 给出的 origin，失败再退到页面相对地址，后者正是桌面壳补上会话 cookie 转发的那条路径。它还在 attachments 服务归一化图片之前包了一层保存方法：把 PNG 里的 `prompt`、`workflow`、`parameters` 文本块按归一化后的附件 id（`sha256:…`）存进 `<DSH_HOME>/drawing-pnginfo/`。所以聊天里发过的图，`drawing_pnginfo` 不传路径也能读配方。
 
 ## 已知限制
 

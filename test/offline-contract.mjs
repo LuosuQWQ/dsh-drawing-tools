@@ -358,6 +358,13 @@ check('host explains an unconfigured launch', hostSrc.includes('drawing_setup') 
 check('status reports launch detection', tools.includes('launchDetected') && tools.includes('可自动启动'))
 check('drawing_setup is registered with detect and apply', tools.includes('function setupTool') && tools.includes("enum: ['detect', 'apply']") && tools.includes('setupTool(settings)'))
 check('setup writes the host launch config', tools.includes('editor.entries()') && tools.includes('launch: { ...(current?.launch ?? {}), ...launchConfig }'))
+
+// —— 30. HTTP 路由准入 ——
+// 这些路由能启动/停止进程、写凭据、回读日志，谁都能调等于把本机交给任意网页。
+check('host asks the connection service for admission', hostSrc.includes('requestRejection'))
+const guardCalls = [...hostSrc.matchAll(/handler: (?:async )?\(req, res\) => \{\r?\n\s*if \(rejected\(ctx, req, res\)\) return\r?\n/g)]
+const routeCount = [...hostSrc.matchAll(/handler: (?:async )?\(req, res\) => \{/g)].length
+check('every webServer route guards admission first', routeCount > 0 && guardCalls.length === routeCount, `guarded ${guardCalls.length}/${routeCount}`)
 if (failed > 0) {
   console.log(`\n${failed} check(s) failed`)
   process.exit(1)
