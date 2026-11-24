@@ -209,6 +209,7 @@ check('client never renders the token back', clientSrc.includes("type: 'password
 // 桌面版页面挂在 dsh-app://，相对路径到不了 Host 网关：凭据面板必须和其余接口一样走 hostJson。
 check('credential panel goes through the host base', clientSrc.includes('hostJson(endpoint)') && clientSrc.includes("importEndpoint: '/cred/import'") && !clientSrc.includes('fetch(API_PREFIX'))
 check('settings page has a hugging face token field', clientSrc.includes('Hugging Face 凭据') && clientSrc.includes("endpoint: '/cred/hf'"))
+check('credential failures name their cause', clientSrc.includes('describeCredentialError') && clientSrc.includes("'保存失败：'") && !clientSrc.includes("catch(() => setNotice('保存失败')"))
 // 凭据服务可能在 bundle 挂载之后才注册：工具调用时要现取，不能只用 apply 时的那一份。
 check('tools re-resolve the credential service per call', tools.includes('const credentialsNow') && tools.includes("activeContext?.get?.('credentials')") && tools.includes('resolveToken(credentialsNow())'))
 check('401 explains whether a token was attached', tools.includes('已附带 token（来源') && tools.includes('没有可用的 token'))
