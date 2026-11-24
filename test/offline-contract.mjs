@@ -197,16 +197,18 @@ check('download gates the token by host', tools.includes('officialDownloadHost(c
 // 复盘：workingDirectory / web / configEditor 以前也只在 apply() 抓一次，和凭据服务同一类问题。
 check('optional services are re-resolved per call', tools.includes("serviceNow('workingDirectory'") && tools.includes("serviceNow('configEditor'") && tools.includes("serviceNow('web'"))
 check('token comes from the credential service', civitaiSrc.includes("CIVITAI_REF_NAME = 'CIVITAI_TOKEN'") && civitaiSrc.includes('credentials.resolve'))
-check('token falls back to the environment', civitaiSrc.includes('process.env[CIVITAI_REF_NAME]'))
+check('token falls back to the environment', civitaiSrc.includes('process.env[name]'))
 check('no tool parameter accepts a token', !tools.includes('token: { type:') && civitaiSrc.includes('describeNamedToken'))
 check('errors are redacted', civitaiSrc.includes('export function redact') && civitaiSrc.includes('Bearer'))
 check('partial downloads are cleaned up', read('lib/install.js').includes('.part\`') && read('lib/install.js').includes('fs.rm(partial'))
-check('host exposes credential routes', hostSrc.includes("path: `${BASE}/cred`") && hostSrc.includes("path: `${BASE}/cred/import`"))
+check('host exposes credential routes', hostSrc.includes("route: `${BASE}/cred`") && hostSrc.includes("path: `${BASE}/cred/import`"))
+check('host exposes a hugging face credential route', hostSrc.includes("route: `${BASE}/cred/hf`") && hostSrc.includes("name: 'HF_TOKEN'"))
 check('present token can be imported from the legacy file', civitaiSrc.includes('readLegacyToken') && hostSrc.includes('readLegacyToken'))
 check('client registers an AI drawing settings page', clientSrc.includes(`name: 'settings.section', id: '${pkg.name}'`) && clientSrc.includes('Civitai 凭据'))
 check('client never renders the token back', clientSrc.includes("type: 'password'") && !clientSrc.includes('value: status.masked'))
 // 桌面版页面挂在 dsh-app://，相对路径到不了 Host 网关：凭据面板必须和其余接口一样走 hostJson。
-check('credential panel goes through the host base', clientSrc.includes("hostJson('/cred'") && clientSrc.includes("hostJson('/cred/import'") && !clientSrc.includes('fetch(API_PREFIX'))
+check('credential panel goes through the host base', clientSrc.includes('hostJson(endpoint)') && clientSrc.includes("importEndpoint: '/cred/import'") && !clientSrc.includes('fetch(API_PREFIX'))
+check('settings page has a hugging face token field', clientSrc.includes('Hugging Face 凭据') && clientSrc.includes("endpoint: '/cred/hf'"))
 // 凭据服务可能在 bundle 挂载之后才注册：工具调用时要现取，不能只用 apply 时的那一份。
 check('tools re-resolve the credential service per call', tools.includes('const credentialsNow') && tools.includes("activeContext?.get?.('credentials')") && tools.includes('resolveToken(credentialsNow())'))
 check('401 explains whether a token was attached', tools.includes('已附带 token（来源') && tools.includes('没有可用的 token'))

@@ -216,7 +216,7 @@ bundle 里这几项启动路径默认留空，因此在你提供之前自动启�
 - **原子写入**：先落 `.part`，SHA256 校验通过后才改名；下载失败或取消会删掉半截文件。
 - **元数据**：从 Civitai 安装会记录 `trainedWords`、`triggerAlternatives`（作者写的 `a | b` 备选）、`triggerHints`（model card 里的触发说明）、`baseModel`、标签、模型名与页面链接；从 Hugging Face 安装会记录 tags、pipeline 与 `instance_prompt`。一组词要一起用，备选是二选一，提示是作者的用法说明。`drawing_models` 按文件显示，`drawing_pnginfo` 会把它附在配方需要的文件上，下载结果里也会重复触发词。没有触发词时按族指南写提示词。
 - **来源记录**：每次安装写 `<models>/.dsh-install/<目录>/<文件>.json`，含来源、URL（token 已脱敏）、类别、SHA256、字节数与时间，便于回溯与卸载。
-- **凭据**：Civitai 用 `CIVITAI_TOKEN`，Hugging Face 用 `HF_TOKEN`，都走 DSH 凭据库，环境变量兜底。任何工具参数都不接受 token。
+- **凭据**：Civitai 用 `CIVITAI_TOKEN`，Hugging Face 用 `HF_TOKEN`，都走 DSH 凭据库，环境变量兜底，两个都能在 **设置 → AI 绘画** 里填。任何工具参数都不接受 token。
 
 ## 复刻测试样例
 
@@ -237,13 +237,14 @@ drawing_generate({ family: 'anima', model: 'anima-aesthetic-v1.1.safetensors', p
 
 **粘贴的图片也不会丢元数据了。** 客户端在粘贴/拖入时先把**原始字节**存到 `<DSH_HOME>/drawing-pnginfo/originals/<sha256>.png`（附件随后仍会被归一化成 JPEG）。`drawing_pnginfo({ sha256 })` 会优先解析这份原图；能拿到来源路径时（拖入，或剪贴板里带 `file://` URI）会作为 `originalPath` 返回并写进 sidecar。
 
-## Civitai 凭据
+## 凭据：Civitai 与 Hugging Face
 
-`drawing_download` 只在模型需要登录（以及 Civitai 拒绝匿名搜索）时才用到 token。token 不是配置、也不会进模型上下文：
+`drawing_download` 只在来源要求登录时才用到 token：受保护的 Civitai 模型、Civitai 拒绝匿名搜索、受保护的 Hugging Face 仓库。token 不是配置、也不会进模型上下文：
 
-- 在 **设置 → AI 绘画** 里填一次：面板把它写进 DSH 的凭据库，引用名 `CIVITAI_TOKEN`。值只在宿主之间传递，不回显；之后的读取只报告「是否已配置 / 来源 / 掩码」。
-- 或者设置环境变量 `CIVITAI_TOKEN` 后重启 DSH。已保存的值优先于环境变量，这与 DSH 的凭据规则一致。
-- 旧版本留下的明文 `~/.dsh/civitai_token` 不会被直接读取；面板提供一次 **从旧文件导入**，导入后原文件保留，由你自行删除。
+- 在 **设置 → AI 绘画** 里各填一次，一个来源一个输入框。**Civitai 凭据** 写进 DSH 的凭据库，引用名 `CIVITAI_TOKEN`；**Hugging Face 凭据** 写进 `HF_TOKEN`。值只在宿主之间传递，不回显；之后的读取只报告「是否已配置 / 来源 / 掩码」。
+- Hugging Face 那个框填 access token（`hf_…`），在 <https://huggingface.co/settings/tokens> 申请。公开仓库不填也能下载，它在受保护仓库和搜索额度上才有用。
+- 或者设置环境变量（`CIVITAI_TOKEN` / `HF_TOKEN`）后重启 DSH。已保存的值优先于环境变量，这与 DSH 的凭据规则一致。
+- 旧版本留下的明文 `~/.dsh/civitai_token` 不会被直接读取；Civitai 面板提供一次 **从旧文件导入**，导入后原文件保留，由你自行删除。
 - 工具参数里没有任何 token 字段。不要把 token 贴进对话：那会进入会话记录。错误信息在到达模型前会做脱敏（`token=***`、`Bearer ***`）。
 - token 只发给官方域（`civitai.com` / `huggingface.co`）。连不上退到 `civitai.red`、`hf-mirror.com` 这类第三方镜像时不会附带凭据；镜像因此被 401 拒绝时，报错会说明是"没有把 token 发过去"，而不是让你重填。
 

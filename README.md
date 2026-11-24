@@ -226,7 +226,7 @@ How a file is used afterwards, by kind: a **checkpoint** draws through `classic`
 - **Atomic**: the download lands in `.part` and is renamed only after the SHA256 check passes. A failed or cancelled download deletes its partial file.
 - **Metadata**: a Civitai install records the version's `trainedWords`, `triggerAlternatives` (author-written `a | b` alternatives), `triggerHints` (trigger instructions found in the model card), `baseModel`, tags, model name and page URL; a Hugging Face install records the repo's tags, pipeline and `instance_prompt` when present. A multi-word set is meant to be used together; an alternatives entry is a choice of one; a hint is the author's own usage note. `drawing_models` shows them per file, `drawing_pnginfo` attaches them to the files a recipe needs, and the download result repeats the trigger words so they are not lost. Without a trigger word the family guide's prompt rules apply.
 - **Provenance**: each install writes `<models>/.dsh-install/<folder>/<file>.json` with source, URL (token redacted), kind, SHA256, byte count and timestamp, so a model can be traced or removed later.
-- **Credentials**: Civitai uses `CIVITAI_TOKEN`, Hugging Face uses `HF_TOKEN`, both through DSH's credential store with an environment fallback. No tool parameter accepts a token.
+- **Credentials**: Civitai uses `CIVITAI_TOKEN`, Hugging Face uses `HF_TOKEN`, both through DSH's credential store with an environment fallback, both fillable in **Settings → AI 绘画**. No tool parameter accepts a token.
 
 ## Replication fixture
 
@@ -247,13 +247,14 @@ It needs `anima-aesthetic-v1.1` + `qwen3-0.6b-base` + `qwen-image-vae` and three
 
 **Pasted images keep their metadata too.** On paste or drop the client first stores the untouched bytes under `<DSH_HOME>/drawing-pnginfo/originals/<sha256>.png` (the attachment itself is still normalized to JPEG). `drawing_pnginfo({ sha256 })` parses that original; when a source path is available (drag-and-drop, or a `file://` URI in the clipboard) it is returned as `originalPath` and written to the sidecar.
 
-## Civitai credentials
+## Credentials: Civitai and Hugging Face
 
-`drawing_download` needs a token only for models that require a login (and for searches Civitai refuses anonymously). The token is never configuration and never reaches the model:
+`drawing_download` needs a token only when a source asks for a login: a gated Civitai model, a search Civitai refuses anonymously, or a gated Hugging Face repository. A token is never configuration and never reaches the model:
 
-- Save it once in **Settings → AI 绘画**: the panel writes it into DSH's credential store under the reference `CIVITAI_TOKEN`. The value travels host-to-host, is never echoed back, and later reads report only "configured / source / masked".
-- Or set the environment variable `CIVITAI_TOKEN` and restart DSH. A stored value outranks the environment, exactly as DSH's credential rules state.
-- An older install that kept a plaintext `~/.dsh/civitai_token` is not read directly; the panel offers **从旧文件导入** once, and leaves the file for you to delete.
+- Save them once in **Settings → AI 绘画**, one field per source. **Civitai 凭据** writes DSH's credential store under `CIVITAI_TOKEN`; **Hugging Face 凭据** writes it under `HF_TOKEN`. A value travels host-to-host, is never echoed back, and later reads report only "configured / source / masked".
+- The Hugging Face field takes an access token (`hf_…`) from <https://huggingface.co/settings/tokens>. Public repositories download without one; it matters for gated repos and for raising the anonymous search limit.
+- Or set the environment variable (`CIVITAI_TOKEN` / `HF_TOKEN`) and restart DSH. A stored value outranks the environment, exactly as DSH's credential rules state.
+- An older install that kept a plaintext `~/.dsh/civitai_token` is not read directly; the Civitai panel offers **从旧文件导入** once, and leaves the file for you to delete.
 - No tool parameter accepts a token. Do not paste one into a prompt: it would become part of the conversation. Errors are redacted (`token=***`, `Bearer ***`) before they reach the model.
 - The token is sent only to the official hosts (`civitai.com` / `huggingface.co`). Mirrors such as `civitai.red` or `hf-mirror.com` never receive it; if a mirror then answers 401, the error says the token was deliberately withheld instead of asking you to re-enter it.
 

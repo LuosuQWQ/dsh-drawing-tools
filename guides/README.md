@@ -50,8 +50,9 @@ English index: [README.en.md](README.en.md)（英文目录；正文为中文，�
    泛网只用来找线索：`action: 'find'` 返回链接，确认可信后再把直链交给
    `downloadUrl` 安装。
 
-   凭据由宿主处理：DSH 的凭据库（设置 → AI 绘画 里填一次）优先，其次环境变量
-   `CIVITAI_TOKEN`。不要向用户要 token，也不要把 token 写进命令或回复。
+   凭据由宿主处理：DSH 的凭据库优先（设置 → AI 绘画 里 Civitai 与 Hugging Face
+   各有一个输入框，填一次即可），其次环境变量 `CIVITAI_TOKEN` / `HF_TOKEN`。
+   不要向用户要 token，也不要把 token 写进命令或回复。
 
 4. 再用 `drawing_models` 复核文件确实出现，然后继续出图。文件已在目录里但列表没刷新时，
    重启 ComfyUI（`scripts/start-comfyui.ps1 -Stop` 再 `-Wait`）后重查。
