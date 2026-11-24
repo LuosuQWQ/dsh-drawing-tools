@@ -232,10 +232,15 @@ check('persona uses trigger words when present', patch.includes('触发词：dra
 
 
 // —— 16. persona 块的缩进必须完整（YAML 折了这行会直接启动失败）——
-const personaBody = patch.split('prefix: |-\n')[1]?.split('          - id: tool-pwsh')[0] ?? ''
-const personaLines = personaBody.split('\n').filter((line) => line !== '')
-const badIndent = personaLines.filter((line) => !line.startsWith('                '))
-check('persona block is indented under prefix', badIndent.length === 0, badIndent.slice(0, 2).join(' | '))
+// 块标量遇到第一个缩进更浅的非空行就结束，那一行必然是插件列表里的 `- id: xxx`（10 空格缩进）。
+// 所以这里不拿具体插件 id 当哨兵（插一个新插件就会误判），只要求「块结束正好落在一条插件条目上」。
+// persona 里任何一行少写几个空格，结束点就会落到普通文字行上，下面那条断言立刻失败。
+const personaAfter = patch.split('prefix: |-\n')[1] ?? ''
+const personaAll = personaAfter.split('\n')
+const personaEnd = personaAll.findIndex((line) => line !== '' && !line.startsWith('                '))
+const personaBoundary = personaEnd === -1 ? '' : personaAll[personaEnd]
+check('persona block ends at a plugin entry', /^ {10}- id: /.test(personaBoundary), personaBoundary)
+check('persona block is indented under prefix', personaEnd > 0, personaEnd === -1 ? '没有找到块结束行' : '块内没有正文')
 
 
 // —— 17. 触发词的三种形态 ——

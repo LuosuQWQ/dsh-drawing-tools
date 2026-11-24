@@ -2,8 +2,9 @@
 #
 # 两行：
 #   1. preset-drawing-minimal —— agent 预设「极简绘画」。基底是官方 minimal 预设的插件表
-#      （短 persona + 只读图片 + shell + 压缩），额外只挂 12 个 drawing_* 工具，所以这只
-#      agent 没有 skill、没有 web / todo / jobs / 文件读写 / 子 agent。
+#      （短 persona + 只读图片 + shell + 压缩），额外挂 12 个 drawing_* 工具与 web 搜索/抓取
+#      （tool-web，本地 profile 已统一加给所有预设），所以这只 agent 没有 skill、没有 todo /
+#      jobs / 文件读写 / 子 agent。
 #      装本包就同时得到工具、侧边栏入口和这个预设，不需要再装第二个包。
 #   2. drawing-console —— Host 半，只负责 ComfyUI 的地址 / 状态 / 启动 / 停止路由，
 #      供 lib/client.js 的侧边栏「AI 绘画」入口使用。
@@ -30,7 +31,7 @@
       config:
         id: drawing-minimal
         name: '极简绘画'
-        description: '以官方 minimal 预设为基底，挂载 12 个 drawing_* 工具（含 Civitai 下载）：只负责出图，不带 skill、web、todo、jobs，文件只读图片、不可编辑。'
+        description: '以官方 minimal 预设为基底，挂载 12 个 drawing_* 工具（含 Civitai 下载）与 web 搜索/抓取：只负责出图，不带 skill、todo、jobs，文件只读图片、不可编辑。'
         order: 6
         plugins:
           - id: persona
@@ -74,6 +75,8 @@
                 - 超时先 drawing_queue 看队列，再用 drawing_history 取图；不要重复提交同一提示词。
                 - 一次只改一个变量（prompt / 尺寸 / 步数 / cfg 四选一）。
                 - 不追问细节、不写教程、不做计划、不复述工具说明。需要确认时给一句话草案，等用户回复，不要连问。
+          - id: tool-web
+            name: '@deepseek-ai/dsh-tool-web'
           - id: tool-pwsh
             name: '@deepseek-ai/dsh-tool-pwsh'
             disabled: !!js process.platform !== 'win32'
